@@ -5,7 +5,7 @@
 Welcome to open_api_framework's documentation!
 =================================================
 
-|build-status| |code-quality| |black| |coverage| |docs|
+|build-status| |code-quality| |black| |coverage|
 
 |python-versions| |django-versions|
 
@@ -48,9 +48,9 @@ Indices and tables
     :target: https://codecov.io/gh/maykinmedia/open-api-framework
     :alt: Coverage status
 
-.. |docs| image:: https://readthedocs.org/projects/open-api-framework/badge/?version=latest
-    :target: https://open-api-framework.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+.. .. |docs| image:: https://readthedocs.org/projects/open-api-framework/badge/?version=latest
+..     :target: https://open-api-framework.readthedocs.io/en/latest/?badge=latest
+..     :alt: Documentation Status
 
 .. |python-versions| image:: https://img.shields.io/pypi/pyversions/open-api-framework.svg
 
