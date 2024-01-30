@@ -6,7 +6,7 @@ Welcome to open_api_framework's documentation!
 :Version: 0.1.0
 :Source: https://github.com/maykinmedia/open_api_framework
 :Keywords: ``<keywords>``
-:PythonVersion: 3.10
+:PythonVersion: 3.11
 
 |build-status| |code-quality| |black| |coverage| |docs|
 
@@ -30,8 +30,8 @@ Installation
 Requirements
 ------------
 
-* Python 3.10 or above
-* Django 4.2 or newer
+* Python 3.9/3.11 or above
+* Django 3.2/4.2 or newer
 
 
 Install
