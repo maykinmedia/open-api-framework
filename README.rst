@@ -6,7 +6,7 @@ Welcome to open_api_framework's documentation!
 :Version: 0.1.0
 :Source: https://github.com/maykinmedia/open_api_framework
 :Keywords: ``<keywords>``
-:PythonVersion: 3.9
+:PythonVersion: 3.10
 
 |build-status| |code-quality| |black| |coverage| |docs|
 
@@ -30,9 +30,8 @@ Installation
 Requirements
 ------------
 
-* Python 3.7 or above
-* setuptools 30.3.0 or above
-* Django 2.2 or newer
+* Python 3.10 or above
+* Django 4.2 or newer
 
 
 Install
@@ -48,6 +47,25 @@ Usage
 
 <document or refer to docs>
 
+Local development
+=================
+
+To install and develop the library locally, use::
+
+.. code-block:: bash
+
+    pip install -e .[tests,coverage,docs,release]
+
+When running management commands via ``django-admin``, make sure to add the root
+directory to the python path (or use ``python -m django <command>``):
+
+.. code-block:: bash
+
+    export PYTHONPATH=. DJANGO_SETTINGS_MODULE=testapp.settings
+    django-admin check
+    # or other commands like:
+    # django-admin makemessages -l nl
+
 
 .. |build-status| image:: https://github.com/maykinmedia/open_api_framework/workflows/Run%20CI/badge.svg
     :alt: Build status
@@ -60,7 +78,7 @@ Usage
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
-.. |coverage| image:: https://codecov.io/gh/maykinmedia/open_api_framework/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/maykinmedia/open_api_framework/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/maykinmedia/open_api_framework
     :alt: Coverage status
 
