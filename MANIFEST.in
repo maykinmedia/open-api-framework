@@ -6,4 +6,3 @@ recursive-include open_api_framework *.txt
 recursive-include open_api_framework *.po
 global-exclude __pycache__
 global-exclude *.py[co]
-
