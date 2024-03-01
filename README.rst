@@ -30,7 +30,7 @@ Installation
 Requirements
 ------------
 
-* Python 3.9/3.11 or above
+* Python 3.9 or above
 * Django 3.2/4.2 or newer
 
 
