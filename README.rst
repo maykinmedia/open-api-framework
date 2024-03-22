@@ -29,7 +29,7 @@ Requirements
 ------------
 
 * Python 3.9 or above
-* Django 3.2/4.2 or newer
+* Django 4.2 or newer
 
 
 Install
