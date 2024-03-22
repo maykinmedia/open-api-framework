@@ -3,7 +3,7 @@
 Welcome to open-api-framework's documentation!
 =================================================
 
-:Version: 0.1.0
+:Version: 0.2.0
 :Source: https://github.com/maykinmedia/open-api-framework
 :Keywords: metapackage, dependencies
 
