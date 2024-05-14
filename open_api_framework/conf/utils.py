@@ -1,5 +1,5 @@
-import os
 import sys
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
@@ -60,4 +60,4 @@ def get_project_dirname() -> str:
 def get_django_project_dir() -> str:
     # Get the path of the importing module
     base_dirname = get_project_dirname()
-    return os.path.dirname(sys.modules[base_dirname].__file__)
+    return Path(sys.modules[base_dirname].__file__).parent

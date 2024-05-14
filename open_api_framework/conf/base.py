@@ -1,5 +1,6 @@
 import os
 import warnings
+from pathlib import Path
 from typing import Callable
 
 from django.urls import reverse_lazy
@@ -22,9 +23,8 @@ PROJECT_DIRNAME = get_project_dirname()
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
 DJANGO_PROJECT_DIR = get_django_project_dir()
-BASE_DIR = os.path.abspath(
-    os.path.join(DJANGO_PROJECT_DIR, os.path.pardir, os.path.pardir)
-)
+BASE_DIR = Path(DJANGO_PROJECT_DIR).resolve().parents[1]
+
 
 #
 # Core Django settings
@@ -117,7 +117,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Optional applications.
-    "ordered_model",
     "django_admin_index",
     "django.contrib.admin",
     # External applications.
@@ -149,7 +148,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    # 'django.middleware.locale.LocaleMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -172,7 +170,7 @@ TEMPLATE_LOADERS = (
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(DJANGO_PROJECT_DIR, "templates")],
+        "DIRS": [Path(DJANGO_PROJECT_DIR) / "templates"],
         "APP_DIRS": False,  # conflicts with explicity specifying the loaders
         "OPTIONS": {
             "context_processors": [
@@ -190,7 +188,7 @@ TEMPLATES = [
 WSGI_APPLICATION = f"{PROJECT_DIRNAME}.wsgi.application"
 
 # Translations
-LOCALE_PATHS = (os.path.join(DJANGO_PROJECT_DIR, "conf", "locale"),)
+LOCALE_PATHS = (Path(DJANGO_PROJECT_DIR) / "conf" / "locale",)
 
 #
 # SERVING of static and media files
@@ -198,10 +196,10 @@ LOCALE_PATHS = (os.path.join(DJANGO_PROJECT_DIR, "conf", "locale"),)
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = Path(BASE_DIR) / "static"
 
 # Additional locations of static files
-STATICFILES_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "static")]
+STATICFILES_DIRS = [Path(DJANGO_PROJECT_DIR) / "static"]
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -210,13 +208,13 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = Path(BASE_DIR) / "media"
 
 MEDIA_URL = "/media/"
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-FIXTURE_DIRS = (os.path.join(DJANGO_PROJECT_DIR, "fixtures"),)
+FIXTURE_DIRS = (Path(DJANGO_PROJECT_DIR) / "fixtures",)
 
 #
 # Sending EMAIL
@@ -245,7 +243,7 @@ if LOG_QUERIES and not DEBUG:
         RuntimeWarning,
     )
 
-LOGGING_DIR = os.path.join(BASE_DIR, "log")
+LOGGING_DIR = Path(BASE_DIR) / "log"
 
 logging_root_handlers = ["console"] if LOG_STDOUT else ["project"]
 logging_django_handlers = ["console"] if LOG_STDOUT else ["django"]
@@ -286,7 +284,7 @@ LOGGING = {
         "django": {
             "level": LOG_LEVEL,
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOGGING_DIR, "django.log"),
+            "filename": Path(LOGGING_DIR) / "django.log",
             "formatter": "verbose",
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
@@ -294,7 +292,7 @@ LOGGING = {
         "project": {
             "level": LOG_LEVEL,
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOGGING_DIR, f"{PROJECT_DIRNAME}.log"),
+            "filename": Path(LOGGING_DIR) / f"{PROJECT_DIRNAME}.log",
             "formatter": "verbose",
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
@@ -302,7 +300,7 @@ LOGGING = {
         "performance": {
             "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOGGING_DIR, "performance.log"),
+            "filename": Path(LOGGING_DIR) / "performance.log",
             "formatter": "performance",
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
@@ -310,7 +308,7 @@ LOGGING = {
         "requests": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOGGING_DIR, "requests.log"),
+            "filename": Path(LOGGING_DIR) / "requests.log",
             "formatter": "timestamped",
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
@@ -449,7 +447,7 @@ if subpath:
 if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "")
 # in docker (build) context, there is no .git directory
-elif os.path.exists(os.path.join(BASE_DIR, ".git")):
+elif (Path(BASE_DIR) / ".git").exists():
     try:
         import git
     except ImportError:
@@ -511,16 +509,6 @@ IPWARE_META_PRECEDENCE_ORDER = (
 )
 
 #
-# DJANGO-HIJACK
-#
-HIJACK_LOGIN_REDIRECT_URL = reverse_lazy("home")
-HIJACK_LOGOUT_REDIRECT_URL = reverse_lazy("admin:accounts_user_changelist")
-HIJACK_REGISTER_ADMIN = False
-# This is a CSRF-security risk.
-# See: http://django-hijack.readthedocs.io/en/latest/configuration/#allowing-get-method-for-hijack-views
-HIJACK_ALLOW_GET_REQUESTS = True
-
-#
 # DJANGO-CORS-MIDDLEWARE
 #
 CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS", default=False)
@@ -556,7 +544,7 @@ CSRF_TRUSTED_ORIGINS = config(
 #
 # DJANGO-PRIVATES -- safely serve files after authorization
 #
-PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private-media")
+PRIVATE_MEDIA_ROOT = Path(BASE_DIR) / "private-media"
 PRIVATE_MEDIA_URL = "/private-media/"
 
 
