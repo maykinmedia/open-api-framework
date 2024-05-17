@@ -32,6 +32,7 @@ dependencies = [
     "django-cors-headers>=4.3.1",
     "django-markup>=1.8.1",
     "django-jsonform>=2.21.4",
+    "django-log-outgoing-requests>=0.6.1",
     "django-admin-index>=3.1.0",
     "django-redis>=5.4.0",
     "djangorestframework>=3.12.4",
