@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.4.0 (2024-06-06)
+------------------
+
+**New features**
+
+* Add django-setup-configuration to deps
+* Add ELASTIC_APM_TRANSACTION_SAMPLE_RATE
+
 0.3.0 (2024-05-17)
 ------------------
 
