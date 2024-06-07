@@ -1,13 +1,42 @@
 import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urlparse
 
-from decouple import Csv, config as _config, undefined
+from decouple import Csv, Undefined, config as _config, undefined
 from sentry_sdk.integrations import DidNotEnable, django, redis
 
 
-def config(option: str, default: Any = undefined, *args, **kwargs):
+@dataclass
+class EnvironmentVariable:
+    name: str
+    default: Any
+    help_text: str
+    group: Optional[str] = None
+
+    def __post_init__(self):
+        if not self.group:
+            self.group = (
+                "Required" if isinstance(self.default, Undefined) else "Optional"
+            )
+
+    def __eq__(self, other):
+        return isinstance(other, EnvironmentVariable) and self.name == other.name
+
+
+ENVVAR_REGISTRY = []
+
+
+def config(
+    option: str,
+    default: Any = undefined,
+    help_text="",
+    group=None,
+    add_to_docs=True,
+    *args,
+    **kwargs,
+):
     """
     Pull a config parameter from the environment.
 
@@ -17,6 +46,13 @@ def config(option: str, default: Any = undefined, *args, **kwargs):
 
     Pass ``split=True`` to split the comma-separated input into a list.
     """
+    if add_to_docs:
+        variable = EnvironmentVariable(
+            name=option, default=default, help_text=help_text, group=group
+        )
+        if variable not in ENVVAR_REGISTRY:
+            ENVVAR_REGISTRY.append(variable)
+
     if "split" in kwargs:
         kwargs.pop("split")
         kwargs["cast"] = Csv()
@@ -54,7 +90,7 @@ def strip_protocol_from_origin(origin: str) -> str:
 
 
 def get_project_dirname() -> str:
-    return config("DJANGO_SETTINGS_MODULE").split(".")[0]
+    return config("DJANGO_SETTINGS_MODULE", add_to_docs=False).split(".")[0]
 
 
 def get_django_project_dir() -> str:
