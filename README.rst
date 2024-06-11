@@ -1,7 +1,5 @@
-
-
-Welcome to open-api-framework's documentation!
-=================================================
+Open API Framework
+==================
 
 :Version: 0.4.0
 :Source: https://github.com/maykinmedia/open-api-framework
@@ -57,6 +55,16 @@ directory to the python path (or use ``python -m django <command>``):
     django-admin check
     # or other commands like:
     # django-admin makemessages -l nl
+
+License
+=======
+
+Copyright © Maykin 2024
+
+Licensed under the `MIT license`.
+
+
+.. _`MIT license`: LICENSE
 
 
 .. |build-status| image:: https://github.com/maykinmedia/open-api-framework/workflows/Run%20CI/badge.svg
