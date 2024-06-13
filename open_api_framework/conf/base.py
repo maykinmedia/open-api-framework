@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Optional applications.
     "django_admin_index",
+    "ordered_model",
     "django.contrib.admin",
     # External applications.
     "axes",
@@ -134,6 +135,7 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_static",
     "django_otp.plugins.otp_totp",
     "two_factor",
+    "two_factor.plugins.webauthn",
     "maykin_2fa",
     "privates",
     "django_jsonform",
