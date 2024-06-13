@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.4.1 (2024-06-13)
+------------------
+
+**Bugfixes**
+
+* Add ``ordered_model`` to ``INSTALLED_APPS`` (required for ``django-admin-index``)
+* Add ``two_factor.plugins.webauthn`` to ``INSTALLED_APPS`` (required for ``maykin_2fa``)
+
 0.4.0 (2024-06-06)
 ------------------
 
