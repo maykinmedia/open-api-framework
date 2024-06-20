@@ -494,7 +494,7 @@ AXES_LOCKOUT_PARAMETERS = [["ip_address", "user_agent", "username"]]
 AXES_BEHIND_REVERSE_PROXY = IS_HTTPS
 # By default, Axes obfuscates values for formfields named "password", but the admin
 # interface login formfield name is "auth-password", so we want to obfuscate that
-AXES_SENSITIVE_PARAMETERS = ["auth-password"]  # nosec
+AXES_SENSITIVE_PARAMETERS = ["password", "auth-password"]  # nosec
 
 # The default meta precedence order
 IPWARE_META_PRECEDENCE_ORDER = (
