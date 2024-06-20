@@ -19,6 +19,7 @@ Features
 ========
 
 * Bundling shared dependencies and introducing minimum versions for these dependencies
+* Providing generic base Django settings to avoid duplicate settings across registration components
 
 Installation
 ============
@@ -36,6 +37,24 @@ Install
 1. Add open-api-framework to your requirements file
 2. Remove dependencies from your requirements file that occur in ``pyproject.toml``
 3. Recompile the dependencies
+
+If you want to reuse the generic base settings, you can do the following:
+
+* Add the following imports to the top of the project's ``base.py`` file:
+
+.. code:: python
+
+    from open_api_framework.conf.base import *  # noqa
+    from open_api_framework.conf.utils import config
+
+* Then you can initialize sentry by adding the following line to ``base.py``:
+
+.. code:: python
+
+    init_sentry()
+
+* After that, compare the settings from ``open_api_framework.conf.base`` to the settings defined in the project's
+`base.py <open_api_framework/conf/base.py>`_ and remove settings from the latter to make use of the generic settings (if this is desired).
 
 Local development
 =================
