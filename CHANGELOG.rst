@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.4.2 (2024-06-20)
+------------------
+
+**Bugfixes**
+
+* Add missing settings for ``TWO_FACTOR_WEBAUTHN``
+
 0.4.1 (2024-06-13)
 ------------------
 
