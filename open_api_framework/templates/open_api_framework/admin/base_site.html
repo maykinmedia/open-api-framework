@@ -1,6 +1,10 @@
 {% extends "admin/base.html" %}
 {% load open_api_framework %}
 
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'open_api_framework/css/admin.css' %}">
+{% endblock %}
+
 {% block messages %}
     {% if project.ENVIRONMENT_SHOWN_IN_ADMIN %}
         {% environment %}
