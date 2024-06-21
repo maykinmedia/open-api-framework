@@ -183,7 +183,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "open_api_framework.context_processors.project",
+                "open_api_framework.context_processors.admin_settings",
                 f"{PROJECT_DIRNAME}.utils.context_processors.settings",
             ],
             "loaders": TEMPLATE_LOADERS,
