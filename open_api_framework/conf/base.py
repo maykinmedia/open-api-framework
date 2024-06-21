@@ -1,7 +1,7 @@
+import datetime
 import os
 import warnings
 from pathlib import Path
-import datetime
 from typing import Callable
 
 from django.urls import reverse_lazy
@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc_db",
     "log_outgoing_requests",
     "django_setup_configuration",
+    PROJECT_DIRNAME,
 ]
 
 MIDDLEWARE = [
@@ -216,8 +217,6 @@ MEDIA_ROOT = Path(BASE_DIR) / "media"
 MEDIA_URL = "/media/"
 
 FILE_UPLOAD_PERMISSIONS = 0o644
-
-FIXTURE_DIRS = (Path(DJANGO_PROJECT_DIR) / "fixtures",)
 
 #
 # Sending EMAIL
