@@ -1,6 +1,7 @@
 import os
 import warnings
 from pathlib import Path
+import datetime
 from typing import Callable
 
 from django.urls import reverse_lazy
@@ -480,11 +481,12 @@ NUM_PROXIES = config(  # TODO: this also is relevant for DRF settings if/when we
 AXES_CACHE = "axes"  # refers to CACHES setting
 # The number of login attempts allowed before a record is created for the
 # failed logins. Default: 3
-AXES_FAILURE_LIMIT = 10
+AXES_FAILURE_LIMIT = 5
+AXES_LOCK_OUT_AT_FAILURE = True  # Default: True
 # If set, defines a period of inactivity after which old failed login attempts
 # will be forgotten. Can be set to a python timedelta object or an integer. If
 # an integer, will be interpreted as a number of hours. Default: None
-AXES_COOLOFF_TIME = 1
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
 # The number of reverse proxies
 AXES_IPWARE_PROXY_COUNT = NUM_PROXIES - 1 if NUM_PROXIES else None
 # If set, specifies a template to render when a user is locked out. Template
@@ -643,6 +645,8 @@ MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = [
     "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
 ]
 
+# if DISABLE_2FA is true, fill the MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS with all
+# configured AUTHENTICATION_BACKENDS and thus disabeling the entire 2FA chain.
 if config("DISABLE_2FA", default=False):  # pragma: no cover
     MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = AUTHENTICATION_BACKENDS
 
