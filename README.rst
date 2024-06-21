@@ -9,7 +9,8 @@ Open API Framework
 
 |python-versions| |django-versions| |pypi-version|
 
-A metapackage for registration components, that bundles the dependencies shared between these components
+A metapackage for registration components, that bundles the dependencies shared between these
+components and provides generic base settings
 
 .. contents::
 
@@ -19,42 +20,12 @@ Features
 ========
 
 * Bundling shared dependencies and introducing minimum versions for these dependencies
+* Providing generic base Django settings to avoid duplicate settings across registration components
 
-Installation
-============
+Usage
+=====
 
-Requirements
-------------
-
-* Python 3.9 or above
-* Django 4.2 or newer
-
-
-Install
--------
-
-1. Add open-api-framework to your requirements file
-2. Remove dependencies from your requirements file that occur in ``pyproject.toml``
-3. Recompile the dependencies
-
-Local development
-=================
-
-To install and develop the library locally, use:
-
-.. code-block:: bash
-
-    pip install -e .[tests,coverage,docs,release]
-
-When running management commands via ``django-admin``, make sure to add the root
-directory to the python path (or use ``python -m django <command>``):
-
-.. code-block:: bash
-
-    export PYTHONPATH=. DJANGO_SETTINGS_MODULE=testapp.settings
-    django-admin check
-    # or other commands like:
-    # django-admin makemessages -l nl
+Please see the hosted `documentation`_ for installation, configuration and usage instructions.
 
 License
 =======
@@ -92,3 +63,5 @@ Licensed under the `MIT license`.
 
 .. |pypi-version| image:: https://img.shields.io/pypi/v/open-api-framework.svg
     :target: https://pypi.org/project/open-api-framework/
+
+.. _documentation: https://open-api-framework.readthedocs.io/en/latest/

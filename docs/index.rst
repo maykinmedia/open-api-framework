@@ -9,13 +9,14 @@ Welcome to open_api_framework's documentation!
 
 |python-versions| |django-versions|
 
-<One liner describing the project>
+A metapackage for registration components, that bundles the dependencies shared between these
+components and provides generic base settings
 
 Features
 ========
 
-* ...
-* ...
+* Bundling shared dependencies and introducing minimum versions for these dependencies
+* Providing generic base Django settings to avoid duplicate settings across registration components
 
 .. toctree::
    :maxdepth: 2
