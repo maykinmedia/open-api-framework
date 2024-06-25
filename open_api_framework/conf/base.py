@@ -1,3 +1,4 @@
+import datetime
 import os
 import warnings
 from pathlib import Path
@@ -145,6 +146,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc_db",
     "log_outgoing_requests",
     "django_setup_configuration",
+    PROJECT_DIRNAME,
 ]
 
 MIDDLEWARE = [
@@ -215,8 +217,6 @@ MEDIA_ROOT = Path(BASE_DIR) / "media"
 MEDIA_URL = "/media/"
 
 FILE_UPLOAD_PERMISSIONS = 0o644
-
-FIXTURE_DIRS = (Path(DJANGO_PROJECT_DIR) / "fixtures",)
 
 #
 # Sending EMAIL
@@ -480,11 +480,12 @@ NUM_PROXIES = config(  # TODO: this also is relevant for DRF settings if/when we
 AXES_CACHE = "axes"  # refers to CACHES setting
 # The number of login attempts allowed before a record is created for the
 # failed logins. Default: 3
-AXES_FAILURE_LIMIT = 10
+AXES_FAILURE_LIMIT = 5
+AXES_LOCK_OUT_AT_FAILURE = True  # Default: True
 # If set, defines a period of inactivity after which old failed login attempts
 # will be forgotten. Can be set to a python timedelta object or an integer. If
 # an integer, will be interpreted as a number of hours. Default: None
-AXES_COOLOFF_TIME = 1
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
 # The number of reverse proxies
 AXES_IPWARE_PROXY_COUNT = NUM_PROXIES - 1 if NUM_PROXIES else None
 # If set, specifies a template to render when a user is locked out. Template
@@ -494,7 +495,7 @@ AXES_LOCKOUT_PARAMETERS = [["ip_address", "user_agent", "username"]]
 AXES_BEHIND_REVERSE_PROXY = IS_HTTPS
 # By default, Axes obfuscates values for formfields named "password", but the admin
 # interface login formfield name is "auth-password", so we want to obfuscate that
-AXES_SENSITIVE_PARAMETERS = ["auth-password"]  # nosec
+AXES_SENSITIVE_PARAMETERS = ["password", "auth-password"]  # nosec
 
 # The default meta precedence order
 IPWARE_META_PRECEDENCE_ORDER = (
@@ -643,6 +644,8 @@ MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = [
     "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
 ]
 
+# if DISABLE_2FA is true, fill the MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS with all
+# configured AUTHENTICATION_BACKENDS and thus disabeling the entire 2FA chain.
 if config("DISABLE_2FA", default=False):  # pragma: no cover
     MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = AUTHENTICATION_BACKENDS
 
@@ -650,7 +653,12 @@ if config("DISABLE_2FA", default=False):  # pragma: no cover
 #
 # LOG OUTGOING REQUESTS
 #
-LOG_OUTGOING_REQUESTS_EMIT_BODY = True
+LOG_OUTGOING_REQUESTS_EMIT_BODY = config(
+    "LOG_OUTGOING_REQUESTS_EMIT_BODY", default=True
+)
+LOG_OUTGOING_REQUESTS_DB_SAVE_BODY = config(
+    "LOG_OUTGOING_REQUESTS_DB_SAVE_BODY", default=True
+)
 LOG_OUTGOING_REQUESTS_DB_SAVE = config("LOG_OUTGOING_REQUESTS_DB_SAVE", default=False)
 LOG_OUTGOING_REQUESTS_RESET_DB_SAVE_AFTER = None
 LOG_OUTGOING_REQUESTS_MAX_AGE = config(
