@@ -1,6 +1,28 @@
 Changelog
 =========
 
+0.5.0 (2024-06-27)
+------------------
+
+**New features**
+
+* Add password to ``AXES_SENSITIVE_PARAMETERS``
+* Use stricter ``django-axes`` settings
+    * ``AXES_FAILURE_LIMIT`` changed from ``10`` to ``5``
+    * ``AXES_COOLOFF_TIME`` changed from ``1`` to ``5`` minutes
+* Make more ``log-outgoing-requests`` settings configurable
+    * ``LOG_OUTGOING_REQUESTS_EMIT_BODY`` (default ``True``)
+    * ``LOG_OUTGOING_REQUESTS_DB_SAVE_BODY`` (default ``True``)
+* Add base template to display current version in admin
+
+**Bugfixes**
+
+* Remove FIXTURE_DIRS setting and add root level app to INSTALLED_APPS
+
+**Other**
+
+* Move documentation to readthedocs
+
 0.4.2 (2024-06-20)
 ------------------
 

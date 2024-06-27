@@ -1,7 +1,7 @@
 Open API Framework
 ==================
 
-:Version: 0.4.2
+:Version: 0.5.0
 :Source: https://github.com/maykinmedia/open-api-framework
 :Keywords: metapackage, dependencies
 
