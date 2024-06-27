@@ -1,6 +1,5 @@
-name: Code quality checks
+name: Documentation checks
 
-# Run this workflow every time a new commit pushed to your repository
 on:
   push:
     branches:
@@ -8,19 +7,16 @@ on:
     tags:
       - '*'
     paths:
-      - '**.py'
+      - 'docs/**'
   pull_request:
     paths:
-      - '**.py'
+      - 'docs/**'
   workflow_dispatch:
 
 jobs:
   linting:
-    name: Code-quality checks
+    name: Documentation-quality check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        toxenv: [isort, black, flake8]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,4 +26,4 @@ jobs:
         run: pip install tox
       - run: tox
         env:
-          TOXENV: ${{ matrix.toxenv }}
+          TOXENV: docs
