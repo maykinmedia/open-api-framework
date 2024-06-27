@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc_db",
     "log_outgoing_requests",
     "django_setup_configuration",
+    "open_api_framework",
     PROJECT_DIRNAME,
 ]
 
@@ -182,6 +183,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "open_api_framework.context_processors.admin_settings",
                 f"{PROJECT_DIRNAME}.utils.context_processors.settings",
             ],
             "loaders": TEMPLATE_LOADERS,
