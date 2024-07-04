@@ -601,6 +601,10 @@ ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False
 # Mozilla Django OIDC DB settings
 #
 OIDC_AUTHENTICATE_CLASS = "mozilla_django_oidc_db.views.OIDCAuthenticationRequestView"
+# Use custom callback view to handle admin login error situations
+# NOTE the AdminLoginFailure view for mozilla-django-oidc-db should be added to the projects
+# urlpatterns to properly catch errors
+OIDC_CALLBACK_CLASS = "mozilla_django_oidc_db.views.OIDCCallbackView"
 MOZILLA_DJANGO_OIDC_DB_CACHE = "oidc"
 MOZILLA_DJANGO_OIDC_DB_CACHE_TIMEOUT = 5 * 60
 
