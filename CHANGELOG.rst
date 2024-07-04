@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.6.0 (2024-07-04)
+------------------
+
+**New features**
+
+* Use the callback class from mozilla-django-oidc-db to allow for a custom error view
+
 0.5.0 (2024-06-27)
 ------------------
 
