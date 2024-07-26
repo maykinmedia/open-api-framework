@@ -124,6 +124,7 @@ INSTALLED_APPS = [
     # External applications.
     "axes",
     "django_filters",
+    "csp",
     "corsheaders",
     "vng_api_common",
     "notifications_api_common",
@@ -162,6 +163,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
+    "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
 ]
 
 ROOT_URLCONF = f"{PROJECT_DIRNAME}.urls"
@@ -419,6 +421,9 @@ SESSION_COOKIE_HTTPONLY = True
 
 CSRF_COOKIE_SECURE = IS_HTTPS
 
+if IS_HTTPS:
+    SECURE_HSTS_SECONDS = 31536000
+
 X_FRAME_OPTIONS = "DENY"
 
 #
@@ -670,3 +675,70 @@ LOG_OUTGOING_REQUESTS_RESET_DB_SAVE_AFTER = None
 LOG_OUTGOING_REQUESTS_MAX_AGE = config(
     "LOG_OUTGOING_REQUESTS_MAX_AGE", default=7
 )  # number of days
+
+
+#
+# Django CSP settings
+#
+# explanation of directives: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+# and how to specify them: https://django-csp.readthedocs.io/en/latest/configuration.html
+#
+# NOTE: make sure values are a tuple or list, and to quote special values like 'self'
+
+# ideally we'd use BASE_URI but it'd have to be lazy or cause issues
+CSP_DEFAULT_SRC = [
+    "'self'",
+] + config("CSP_EXTRA_DEFAULT_SRC", default=[], split=True)
+
+# Allow any 'https:' host, as we don't know in advance which target is used by eHerkenning.
+# Behavior is also different between browsers regarding redirects, see:
+# https://stackoverflow.com/a/69439102 / https://github.com/w3c/webappsec-csp/issues/8
+CSP_FORM_ACTION = (
+    config(
+        "CSP_FORM_ACTION",
+        default=["\"'self'\"", "https:"]
+        + config("CSP_EXTRA_FORM_ACTION", default=[], split=True),
+        split=True,
+    )
+    + CORS_ALLOWED_ORIGINS
+)
+
+# * service.pdok.nl serves the tiles for the Leaflet maps (PNGs) and must be whitelisted
+# * the data: URIs are used by Leaflet (invisible pixel for memory management/image unloading)
+#   and the signature component which saves the image drawn on the canvas as data: URI
+CSP_IMG_SRC = (
+    CSP_DEFAULT_SRC
+    + ["data:", "https://service.pdok.nl/"]
+    + config("CSP_EXTRA_IMG_SRC", default=[], split=True)
+)
+
+# affects <object> and <embed> tags, block everything by default but allow deploy-time
+# overrides.
+CSP_OBJECT_SRC = config("CSP_OBJECT_SRC", default=["\"'none'\""], split=True)
+
+# we must include this explicitly, otherwise the style-src only includes the nonce because
+# of CSP_INCLUDE_NONCE_IN
+CSP_STYLE_SRC = CSP_DEFAULT_SRC
+CSP_SCRIPT_SRC = CSP_DEFAULT_SRC
+
+# firefox does not get the nonce from default-src, see
+# https://stackoverflow.com/a/63376012
+CSP_INCLUDE_NONCE_IN = ["style-src", "script-src"]
+
+# directives that don't fallback to default-src
+CSP_BASE_URI = ["'self'"]
+
+# Frame directives do not fall back to default-src
+CSP_FRAME_ANCESTORS = ["'none'"]  # equivalent to X-Frame-Options: deny
+CSP_FRAME_SRC = ["'self'"]
+# CSP_NAVIGATE_TO = ["'self'"]  # this will break all outgoing links etc  # too much & tricky, see note on MDN
+# CSP_SANDBOX # too much
+
+CSP_UPGRADE_INSECURE_REQUESTS = False  # TODO enable on production?
+
+CSP_EXCLUDE_URL_PREFIXES = (
+    # ReDoc/Swagger pull in external sources, so don't enforce CSP on API endpoints/documentation.
+    "/api/",
+    # FIXME: Admin pulls in bootstrap from CDN & has inline styles/scripts probably
+    "/admin/",
+)
