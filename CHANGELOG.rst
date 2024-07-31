@@ -1,6 +1,28 @@
 Changelog
 =========
 
+
+0.6.1 (2024-07-31)
+------------------
+
+**Project maintenance and QOL**
+
+* Updated dependencies:
+    - django ``4.2.11+`` to ``4.2.14+``
+    - django-axes ``6.3.0+`` to ``6.5.1+``
+    - django-cors-headers ``4.3.1+`` to ``4.4.0+``
+    - django-jsonform ``2.21.4+`` to ``2.22.0+``
+    - djangorestframework ``3.12.4+`` to ``3.15.2+``
+    - django-filter ``23.2+`` to ``24.2+``
+    - drf-spectacular ``0.27.0+`` to ``0.27.2+``
+    - mozilla-django-oidc-db ``0.14.1+`` to ``0.19.0+``
+    - requests ``2.31.0+`` to ``2.32.3+``
+    - sentry-sdk ``1.39.2+`` to ``2.11.0+``
+    - elastic-apm ``6.20.0+`` to ``6.22.0+``
+    - celery ``5.2.7+`` to ``5.4.0+``
+    - maykin-2fa ``1.0.0+`` to ``1.0.1+``
+
+
 0.6.0 (2024-07-04)
 ------------------
 
