@@ -23,6 +23,7 @@ Features
    :caption: Contents:
 
    quickstart
+   reference
 
 
 
