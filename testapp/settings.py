@@ -1,10 +1,34 @@
 from pathlib import Path
 
+from open_api_framework.conf.utils import config
+
 BASE_DIR = Path(__file__).resolve(strict=True).parent
 
-SECRET_KEY = "so-secret-i-cant-believe-you-are-looking-at-this"
+SECRET_KEY = config(
+    "SECRET_KEY",
+    "so-secret-i-cant-believe-you-are-looking-at-this",
+    group="Required",
+    help_text=("Secret key that's used for certain cryptographic utilities."),
+)
+DEBUG = config(
+    "DEBUG",
+    default=False,
+    help_text=(
+        "Only set this to ``True`` on a local development environment. "
+        "Various other security settings are derived from this setting!"
+    ),
+)
+IS_HTTPS = config(
+    "IS_HTTPS",
+    default=not DEBUG,
+    help_text=(
+        "Used to construct absolute URLs and controls a variety of security settings. "
+        "Defaults to the inverse of ``DEBUG``."
+    ),
+    auto_display_default=False,
+)
 
-USE_TZ = True
+USE_TZ = config("USE_TZ", True, add_to_docs=False)
 
 DATABASES = {
     "default": {
@@ -50,3 +74,7 @@ TEMPLATES = [
 ]
 
 ROOT_URLCONF = "testapp.urls"
+
+# These are excluded from generate_envvar_docs test by their group
+VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED1", "foo", group="Excluded")
+VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED2", "bar", group="Excluded")
