@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.7.0 (2024-08-15)
+------------------
+
+**New features**
+
+* Management command to generate documentation for environment variables
+* Made SESSION_COOKIE_SAMESITE and CSRF_COOKIE_SAMESITE configurable via environment variables (default ``Strict``)
 
 0.6.1 (2024-07-31)
 ------------------
