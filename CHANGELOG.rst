@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.7.1 (2024-08-16)
+------------------
+
+**Bugfixes**
+
+* Add missing help_text for SESSION_COOKIE_SAMESITE and CSRF_COOKIE_SAMESITE envvars
+
 0.7.0 (2024-08-15)
 ------------------
 
