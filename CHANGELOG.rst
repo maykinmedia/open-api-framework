@@ -1,6 +1,26 @@
 Changelog
 =========
 
+0.8.0 (2024-08-22)
+------------------
+
+**New features**
+
+* Add Django CSP with configurable settings
+* Add SECURE_HSTS_SECONDS and CSRF_COOKIE_HTTPONLY settings
+
+.. warning::
+
+    SECURE_HSTS_SECONDS has been added with a default of 31536000 seconds, ensure that
+    before upgrading to this version of open-api-framework, your entire application is served
+    over HTTPS, otherwise this setting can break parts of your application (see https://docs.djangoproject.com/en/4.2/ref/middleware/#http-strict-transport-security)
+
+**Bugfixes/QOL**
+
+* Fix rendering for envvar defaults (previously quotes were escaped)
+* Move ``CACHE_DEFAULT``, ``CACHE_AXES``, ``EMAIL_HOST`` envvars to Required group (because they are required for Docker)
+* Add CI job to check if all envvars are either documented or excluded from documentation
+
 0.7.1 (2024-08-16)
 ------------------
 
