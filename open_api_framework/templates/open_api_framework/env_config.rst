@@ -13,7 +13,7 @@ Available environment variables
 {{group_name}}
 {{group_name|repeat_char:"-"}}
 
-{% for var in vars %}* ``{{var.name}}``: {% if var.help_text %}{{var.help_text|safe|ensure_endswith:"."}}{% endif %}{% if var.auto_display_default and not var.default|is_undefined %} Defaults to: ``{{var.default|to_str}}``.{% endif %}
+{% for var in vars %}* ``{{var.name}}``: {% if var.help_text %}{{var.help_text|safe|ensure_endswith:"."}}{% endif %}{% if var.auto_display_default and not var.default|is_undefined %} Defaults to: ``{{var.default|to_str|safe}}``.{% endif %}
 {% endfor %}
 {% endfor %}
 
