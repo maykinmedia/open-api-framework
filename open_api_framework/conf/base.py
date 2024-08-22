@@ -149,12 +149,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 CACHE_DEFAULT = config(
     "CACHE_DEFAULT",
     "localhost:6379/0",
-    help_text="redis cache address for the default cache",
+    help_text="redis cache address for the default cache (this **MUST** be set when using Docker)",
+    group="Required",
 )
 CACHE_AXES = config(
     "CACHE_AXES",
     "localhost:6379/0",
-    help_text="redis cache address for the brute force login protection cache",
+    help_text=(
+        "redis cache address for the brute force login protection cache "
+        "(this **MUST** be set when using Docker)"
+    ),
+    group="Required",
 )
 
 CACHES = {
@@ -307,7 +312,8 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 EMAIL_HOST = config(
     "EMAIL_HOST",
     default="localhost",
-    help_text="hostname for the outgoing e-mail server",
+    help_text="hostname for the outgoing e-mail server (this **MUST** be set when using Docker)",
+    group="Required",
 )
 EMAIL_PORT = config(
     "EMAIL_PORT",
@@ -612,7 +618,7 @@ if subpath:
     SUBPATH = subpath
 
 if "GIT_SHA" in os.environ:
-    GIT_SHA = config("GIT_SHA", "")
+    GIT_SHA = config("GIT_SHA", "", add_to_docs=False)
 # in docker (build) context, there is no .git directory
 elif (Path(BASE_DIR) / ".git").exists():
     try:
