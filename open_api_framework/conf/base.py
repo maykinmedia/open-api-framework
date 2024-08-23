@@ -849,7 +849,7 @@ MOZILLA_DJANGO_OIDC_DB_CACHE_TIMEOUT = 5 * 60
 ELASTIC_APM_SERVER_URL = config(
     "ELASTIC_APM_SERVER_URL",
     None,
-    "URL where Elastic APM is hosted",
+    help_text="URL where Elastic APM is hosted",
     group="Elastic APM",
 )
 ELASTIC_APM = {
@@ -867,7 +867,7 @@ ELASTIC_APM = {
     "SECRET_TOKEN": config(
         "ELASTIC_APM_SECRET_TOKEN",
         "default",
-        "Token used to communicate with Elastic APM",
+        help_text="Token used to communicate with Elastic APM",
         group="Elastic APM",
     ),
     "SERVER_URL": ELASTIC_APM_SERVER_URL,
