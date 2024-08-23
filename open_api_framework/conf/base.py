@@ -957,25 +957,64 @@ LOG_OUTGOING_REQUESTS_MAX_AGE = config(
 # ideally we'd use BASE_URI but it'd have to be lazy or cause issues
 CSP_DEFAULT_SRC = [
     "'self'",
-] + config("CSP_EXTRA_DEFAULT_SRC", default=[], split=True)
+] + config(
+    "CSP_EXTRA_DEFAULT_SRC",
+    default=[],
+    split=True,
+    group="Content Security Policy",
+    help_text="Extra default source URLs for CSP other than ``self``. "
+    "Used for ``img-src``, ``style-src`` and ``script-src``",
+)
 
-CSP_REPORT_PERCENTAGE = config("CSP_REPORT_PERCENTAGE", 1.0)  # float between 0 and 1
+
+CSP_REPORT_URI = config(
+    "CSP_REPORT_URI",
+    None,
+    group="Content Security Policy",
+    help_text="URI of the``report-uri`` directive.",
+)
+CSP_REPORT_PERCENTAGE = config(
+    "CSP_REPORT_PERCENTAGE",
+    0,
+    group="Content Security Policy",
+    help_text="Percentage of requests that get the ``report-uri`` directive.",
+)  # float between 0 and 1
 
 CSP_FORM_ACTION = (
     config(
         "CSP_FORM_ACTION",
         default=["\"'self'\""]
-        + config("CSP_EXTRA_FORM_ACTION", default=[], split=True),
+        + config(
+            "CSP_EXTRA_FORM_ACTION",
+            default=[],
+            split=True,
+            group="Content Security Policy",
+            help_text="Add additional ``form-action`` source to the default ",
+        ),
         split=True,
+        group="Content Security Policy",
+        help_text="Override the default ``form-action`` source",
     )
     + CORS_ALLOWED_ORIGINS
 )
 
-CSP_IMG_SRC = CSP_DEFAULT_SRC + config("CSP_EXTRA_IMG_SRC", default=[], split=True)
+CSP_IMG_SRC = CSP_DEFAULT_SRC + config(
+    "CSP_EXTRA_IMG_SRC",
+    default=[],
+    split=True,
+    group="Content Security Policy",
+    help_text="Extra ``img-src`` sources for CSP other than ``CSP_DEFAULT_SRC``.",
+)
 
 # affects <object> and <embed> tags, block everything by default but allow deploy-time
 # overrides.
-CSP_OBJECT_SRC = config("CSP_OBJECT_SRC", default=["\"'none'\""], split=True)
+CSP_OBJECT_SRC = config(
+    "CSP_OBJECT_SRC",
+    default=["\"'none'\""],
+    split=True,
+    group="Content Security Policy",
+    help_text="``object-src`` urls",
+)
 
 # we must include this explicitly, otherwise the style-src only includes the nonce because
 # of CSP_INCLUDE_NONCE_IN
