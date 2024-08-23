@@ -31,3 +31,14 @@ jobs:
       - run: tox
         env:
           TOXENV: ${{ matrix.toxenv }}
+
+  check-envvar-documentation:
+    name: Check if environment variables are documented
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check environment variables
+        run: python bin/check_envvar_usage.py
