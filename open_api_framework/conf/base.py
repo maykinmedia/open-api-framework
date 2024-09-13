@@ -213,6 +213,7 @@ INSTALLED_APPS = [
     "vng_api_common",
     "notifications_api_common",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
     "rest_framework",
     "django_markup",
     "solo",
@@ -955,9 +956,7 @@ LOG_OUTGOING_REQUESTS_MAX_AGE = config(
 # NOTE: make sure values are a tuple or list, and to quote special values like 'self'
 
 # ideally we'd use BASE_URI but it'd have to be lazy or cause issues
-CSP_DEFAULT_SRC = [
-    "'self'",
-] + config(
+CSP_DEFAULT_SRC = ["'self'", "'unsafe-inline'"] + config(
     "CSP_EXTRA_DEFAULT_SRC",
     default=[],
     split=True,
@@ -998,12 +997,16 @@ CSP_FORM_ACTION = (
     + CORS_ALLOWED_ORIGINS
 )
 
-CSP_IMG_SRC = CSP_DEFAULT_SRC + config(
-    "CSP_EXTRA_IMG_SRC",
-    default=[],
-    split=True,
-    group="Content Security Policy",
-    help_text="Extra ``img-src`` sources for CSP other than ``CSP_DEFAULT_SRC``.",
+CSP_IMG_SRC = (
+    CSP_DEFAULT_SRC
+    + ["data:", "cdn.redoc.ly", "cdn.jsdelivr.net"]  # used by DRF spectacular
+    + config(
+        "CSP_EXTRA_IMG_SRC",
+        default=[],
+        split=True,
+        group="Content Security Policy",
+        help_text="Extra ``img-src`` sources for CSP other than ``CSP_DEFAULT_SRC``.",
+    )
 )
 
 # affects <object> and <embed> tags, block everything by default but allow deploy-time
@@ -1018,8 +1021,10 @@ CSP_OBJECT_SRC = config(
 
 # we must include this explicitly, otherwise the style-src only includes the nonce because
 # of CSP_INCLUDE_NONCE_IN
-CSP_STYLE_SRC = CSP_DEFAULT_SRC
+CSP_STYLE_SRC = CSP_DEFAULT_SRC + ["fonts.googleapis.com"]  # used by DRF spectacular
 CSP_SCRIPT_SRC = CSP_DEFAULT_SRC
+CSP_FONT_SRC = ("'self'", "fonts.gstatic.com")
+CSP_WORKER_SRC = ("'self'", "blob:")
 
 # firefox does not get the nonce from default-src, see
 # https://stackoverflow.com/a/63376012
@@ -1035,9 +1040,3 @@ CSP_FRAME_SRC = ["'self'"]
 # CSP_SANDBOX # too much
 
 CSP_UPGRADE_INSECURE_REQUESTS = False  # TODO enable on production?
-
-CSP_EXCLUDE_URL_PREFIXES = (
-    # ReDoc/Swagger pull in external sources, so don't enforce CSP on API endpoints/documentation.
-    "/api/",
-    "/admin/",
-)
