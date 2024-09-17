@@ -75,6 +75,14 @@ TEMPLATES = [
 
 ROOT_URLCONF = "testapp.urls"
 
+NOTIF_CONFIG_ENABLE = config(
+    "NOTIF_CONFIG_ENABLE",
+    default=False,
+    group="Setup Configuration",
+    sub_group="Notification Configuration",
+    help_text="Enable Notification Configuration",
+)
+
 # These are excluded from generate_envvar_docs test by their group
 VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED1", "foo", group="Excluded")
 VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED2", "bar", group="Excluded")

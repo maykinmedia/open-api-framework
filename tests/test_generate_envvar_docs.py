@@ -31,6 +31,15 @@ security settings are derived from this setting!. Defaults to: ``False``.
 Defaults to the inverse of ``DEBUG``.
 
 
+Setup Configuration
+-------------------
+
+Notification Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``NOTIF_CONFIG_ENABLE``: Enable Notification Configuration. Defaults to: ``False``.
+
+
 
 
 
