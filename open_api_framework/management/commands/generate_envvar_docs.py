@@ -9,12 +9,16 @@ from open_api_framework.conf.utils import EnvironmentVariable
 
 def convert_variables_to_rst(variables: list[EnvironmentVariable]) -> str:
     template = loader.get_template("open_api_framework/env_config.rst")
-    grouped_vars = defaultdict(list)
+    grouped_vars = defaultdict(lambda: defaultdict(list))
     for var in variables:
         if not var.help_text:
             warnings.warn(f"missing help_text for environment variable {var}")
-        grouped_vars[var.group].append(var)
-    return template.render({"vars": grouped_vars.items()})
+        grouped_vars[var.group][var.sub_group].append(var)
+
+    vars = []
+    for group, group_vars in grouped_vars.items():
+        vars.append((group, group_vars.items()))
+    return template.render({"vars": vars})
 
 
 class Command(BaseCommand):
@@ -47,6 +51,8 @@ class Command(BaseCommand):
                     return 0
                 case "Optional":
                     return 2
+                case "Setup Configuration":
+                    return 3
                 case _:
                     return 1
 
