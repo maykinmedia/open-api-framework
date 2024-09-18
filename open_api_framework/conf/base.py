@@ -549,11 +549,12 @@ SESSION_COOKIE_SECURE = IS_HTTPS
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = config(
     "SESSION_COOKIE_SAMESITE",
-    "Strict",
+    "Lax",
     help_text=(
         "The value of the SameSite flag on the session cookie. This flag prevents the "
         "cookie from being sent in cross-site requests thus preventing CSRF attacks and "
         "making some methods of stealing session cookie impossible."
+        "Currently interferes with OIDC. Keep the value set at Lax if used."
     ),
 )
 
