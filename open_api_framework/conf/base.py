@@ -539,8 +539,8 @@ SESSION_COOKIE_NAME = f"{PROJECT_DIRNAME}_sessionid"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_COOKIE_AGE = config(
     "SESSION_COOKIE_AGE",
-           default=1209600,
-           help_text="For how long, in seconds, the session cookie will be valid."
+    default=1209600,
+    help_text="For how long, in seconds, the session cookie will be valid.",
 )
 
 

@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.admin",
     "open_api_framework",
+    "sessionprofile",
     "testapp",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "sessionprofile.middleware.SessionProfileMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
