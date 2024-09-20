@@ -956,7 +956,7 @@ LOG_OUTGOING_REQUESTS_MAX_AGE = config(
 # NOTE: make sure values are a tuple or list, and to quote special values like 'self'
 
 # ideally we'd use BASE_URI but it'd have to be lazy or cause issues
-CSP_DEFAULT_SRC = ["'self'", "'unsafe-inline'"] + config(
+CSP_DEFAULT_SRC = ["'self'"] + config(
     "CSP_EXTRA_DEFAULT_SRC",
     default=[],
     split=True,
@@ -1021,8 +1021,11 @@ CSP_OBJECT_SRC = config(
 
 # we must include this explicitly, otherwise the style-src only includes the nonce because
 # of CSP_INCLUDE_NONCE_IN
-CSP_STYLE_SRC = CSP_DEFAULT_SRC + ["fonts.googleapis.com"]  # used by DRF spectacular
-CSP_SCRIPT_SRC = CSP_DEFAULT_SRC
+CSP_STYLE_SRC = CSP_DEFAULT_SRC + [
+    "'unsafe-inline'",
+    "fonts.googleapis.com",
+]  # used by DRF spectacular
+CSP_SCRIPT_SRC = CSP_DEFAULT_SRC + ["'unsafe-inline'"]
 CSP_FONT_SRC = ("'self'", "fonts.gstatic.com")
 CSP_WORKER_SRC = ("'self'", "blob:")
 
