@@ -999,7 +999,7 @@ CSP_FORM_ACTION = (
 
 CSP_IMG_SRC = (
     CSP_DEFAULT_SRC
-    + ["data:", "cdn.redoc.ly", "cdn.jsdelivr.net"]  # used by DRF spectacular
+    + ["data:", "cdn.redoc.ly"]  # used by DRF spectacular
     + config(
         "CSP_EXTRA_IMG_SRC",
         default=[],
