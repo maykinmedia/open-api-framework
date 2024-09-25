@@ -39,10 +39,7 @@ SITE_ID = config(
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config(
     "SECRET_KEY",
-    help_text=(
-        "Secret key that's used for certain cryptographic utilities. "
-        "You should generate one via `miniwebtool <https://www.miniwebtool.com/django-secret-key-generator>`_"
-    ),
+    help_text="Secret key that's used for certain cryptographic utilities. ",
 )
 
 # NEVER run with DEBUG=True in production-like environments
