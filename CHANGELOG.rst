@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.8.1 (2024-09-26)
+------------------
+
+**Bugfixes/QOL**
+
+* Change SESSION_COOKIE_SAMESITE to "Lax" to fix OIDC (#72)
+* Remove url from SECRET_KEY help text (#76)
+* Change CSP headers to support API schema page
+
 0.8.0 (2024-08-22)
 ------------------
 
