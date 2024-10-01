@@ -22,15 +22,6 @@ Required
 ``so-secret-i-cant-believe-you-are-looking-at-this``.
 
 
-Optional
---------
-
-* ``DEBUG``: Only set this to ``True`` on a local development environment. Various other \
-security settings are derived from this setting!. Defaults to: ``False``.
-* ``IS_HTTPS``: Used to construct absolute URLs and controls a variety of security settings. \
-Defaults to the inverse of ``DEBUG``.
-
-
 Setup Configuration
 -------------------
 
@@ -38,6 +29,15 @@ Notification Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``NOTIF_CONFIG_ENABLE``: Enable Notification Configuration. Defaults to: ``False``.
+
+
+Optional
+--------
+
+* ``DEBUG``: Only set this to ``True`` on a local development environment. Various other \
+security settings are derived from this setting!. Defaults to: ``False``.
+* ``IS_HTTPS``: Used to construct absolute URLs and controls a variety of security settings. \
+Defaults to the inverse of ``DEBUG``.
 
 
 
@@ -81,7 +81,9 @@ def test_generate_envvar_docs():
         "open_api_framework.management.commands.generate_envvar_docs.open", mock_file
     ):
         call_command(
-            "generate_envvar_docs", file="some/file/path.txt", exclude_group="Excluded"
+            "generate_envvar_docs",
+            envvar_file="some/file/path.txt",
+            exclude_group="Excluded",
         )
 
         mock_file.assert_called_once_with("some/file/path.txt", "w")

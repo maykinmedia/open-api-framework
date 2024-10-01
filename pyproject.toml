@@ -55,7 +55,7 @@ dependencies = [
     "celery>=5.4.0",
     "flower>=2.0.1",
     "maykin-2fa>=1.0.1",
-    "django-setup-configuration>=0.1.0",
+    "django-setup-configuration>=0.3.0",
 ]
 
 [project.urls]
