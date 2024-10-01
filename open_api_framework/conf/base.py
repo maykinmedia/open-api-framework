@@ -1053,5 +1053,5 @@ SOLO_CACHE = config(
         "The cache which will be used by Django Solo. Can be set to an empty "
         "string to disable caching for Django Solo."
     ),
-    cast=lambda value: value if value else None
+    cast=lambda value: value if value else None,
 )
