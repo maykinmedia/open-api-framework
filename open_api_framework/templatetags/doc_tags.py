@@ -33,3 +33,13 @@ def ensure_endswith(value, char):
     if not value.endswith(char):
         value += char
     return value
+
+
+@register.simple_tag
+def config_var_description(variable, details):
+
+    var_details = details.get(variable)
+    if var_details:
+        return var_details.get("description", "No description provided")
+
+    return "No description provided"

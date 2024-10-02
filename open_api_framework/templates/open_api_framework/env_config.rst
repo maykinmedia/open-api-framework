@@ -11,13 +11,16 @@ Available environment variables
 
 {% for group_name, group_vars in vars %}
 {{group_name}}
-{{group_name|repeat_char:"-"}}{% for subgroup_name, subgroup_vars in group_vars %}
-{% if subgroup_name is not null %}
+{{group_name|repeat_char:"-"}}
+
+{% spaceless %}{% for subgroup_name, subgroup_vars in group_vars %}{% if subgroup_name is not null %}
 {{subgroup_name}}
-{{subgroup_name|repeat_char:"^"}}
-{% endif %}
-{% for var in subgroup_vars %}* ``{{var.name}}``: {% if var.help_text %}{{var.help_text|safe|ensure_endswith:"."}}{% endif %}{% if var.auto_display_default and not var.default|is_undefined %} Defaults to: ``{{var.default|to_str|safe}}``.{% endif %}
-{% endfor %}{% endfor %}
+{{subgroup_name|repeat_char:"^"}}{% endif %}
+
+{% spaceless %}
+{% for var in subgroup_vars %}
+* ``{{var.name}}``: {% if var.help_text %}{{var.help_text|safe|ensure_endswith:"."}}{% endif %}{% if var.auto_display_default and not var.default|is_undefined %} Defaults to: ``{{var.default|to_str|safe}}``.{% endif %}{% endfor %}{% endspaceless %}{% endfor %}{% endspaceless %}
+
 {% endfor %}
 
 {% block extra %}{% endblock %}
