@@ -1046,12 +1046,4 @@ CSP_UPGRADE_INSECURE_REQUESTS = False  # TODO enable on production?
 #
 # Django Solo
 #
-SOLO_CACHE = config(
-    "SOLO_CACHE",
-    default="default",
-    help_text=(
-        "The cache which will be used by Django Solo. Can be set to an empty "
-        "string to disable caching for Django Solo."
-    ),
-    cast=lambda value: value if value else None,
-)
+SOLO_CACHE = "default"
