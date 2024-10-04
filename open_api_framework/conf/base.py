@@ -208,6 +208,7 @@ INSTALLED_APPS = [
     "csp",
     "corsheaders",
     "vng_api_common",
+    "vng_api_common.authorizations",
     "notifications_api_common",
     "drf_spectacular",
     "drf_spectacular_sidecar",
