@@ -14,6 +14,7 @@ class EnvironmentVariable:
     default: Any
     help_text: str
     group: Optional[str] = None
+    sub_group: Optional[str] = None
     auto_display_default: bool = True
 
     def __post_init__(self):
@@ -34,6 +35,7 @@ def config(
     default: Any = undefined,
     help_text="",
     group=None,
+    sub_group=None,
     add_to_docs=True,
     auto_display_default=True,
     *args,
@@ -56,6 +58,7 @@ def config(
 
     :param help_text: The help text to be displayed for this variable in the documentation. Default `""`
     :param group: The name of the section under which this variable will be grouped. Default ``None``
+    :param sub_group: The name of the subsection under which this variable will be grouped. Default ``None``
     :param add_to_docs: Whether or not this variable will be displayed in the documentation. Default ``True``
     :param auto_display_default: Whether or not the passed ``default`` value is displayed in the docs, this can be
         set to ``False`` in case a default needs more explanation that can be added to the ``help_text``
@@ -67,6 +70,7 @@ def config(
             default=default,
             help_text=help_text,
             group=group,
+            sub_group=sub_group,
             auto_display_default=auto_display_default,
         )
         if variable not in ENVVAR_REGISTRY:
