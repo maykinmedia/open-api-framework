@@ -73,6 +73,7 @@ tests = [
     "isort",
     "black",
     "flake8",
+    "factory-boy",
 ]
 coverage = [
     "pytest-cov",

@@ -80,3 +80,5 @@ ROOT_URLCONF = "testapp.urls"
 # These are excluded from generate_envvar_docs test by their group
 VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED1", "foo", group="Excluded")
 VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED2", "bar", group="Excluded")
+
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
