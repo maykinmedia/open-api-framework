@@ -241,7 +241,6 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "maykin_2fa.middleware.OTPMiddleware",
-    "mozilla_django_oidc_db.middleware.SessionRefresh",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
@@ -535,6 +534,12 @@ AUTHENTICATION_BACKENDS = [
 
 SESSION_COOKIE_NAME = f"{PROJECT_DIRNAME}_sessionid"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_COOKIE_AGE = config(
+    "SESSION_COOKIE_AGE",
+    default=1209600,
+    help_text="For how long, in seconds, the session cookie will be valid.",
+)
+
 
 LOGIN_URL = reverse_lazy("admin:login")
 LOGIN_REDIRECT_URL = reverse_lazy("admin:index")
