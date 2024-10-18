@@ -1,9 +1,8 @@
-from importlib import import_module
-
-from django.conf import settings
 from django.contrib import admin
 
 from sessionprofile.models import SessionProfile
+
+from open_api_framework.utils import get_session_store
 
 
 @admin.register(SessionProfile)
@@ -13,7 +12,7 @@ class SessionProfileAdmin(admin.ModelAdmin):
     @property
     def SessionStore(self):
 
-        return import_module(settings.SESSION_ENGINE).SessionStore
+        return get_session_store()
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -35,8 +34,7 @@ class SessionProfileAdmin(admin.ModelAdmin):
 
     def delete_queryset(self, request, queryset):
 
-        session_keys = list(queryset.values_list("session_key", flat=True))
-        for session_key in session_keys:
-            self.SessionStore(session_key).flush()
+        for session_profile in queryset.iterator():
+            self.SessionStore(session_profile.session_key).flush()
 
         super().delete_queryset(request, queryset)

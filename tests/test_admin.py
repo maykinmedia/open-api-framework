@@ -1,9 +1,13 @@
+from django.contrib.sessions.backends.cache import SessionStore as CachedSessionStore
+from django.contrib.sessions.backends.db import SessionStore as DBSessionStore
 from django.contrib.sessions.models import Session
+from django.test import override_settings
 from django.urls import reverse
 
 import pytest
-from pytest_django.fixtures import admin_user
 from sessionprofile.models import SessionProfile
+
+from open_api_framework.utils import get_session_store
 
 from .factories import SessionProfileFactory
 
@@ -23,9 +27,6 @@ def test_session_profile_sanity(client, admin_user, session_changelist_url):
 
     session = SessionProfile.objects.get()
     assert client.session.session_key == session.session_key
-
-
-admin_user2 = admin_user
 
 
 def test_only_session_profile_of_user_shown(
@@ -54,10 +55,44 @@ def test_only_session_profile_of_user_shown(
     other_user_session = SessionProfile.objects.get(user=other_admin)
     assert other_user_session.session_key not in response.content.decode()
 
+    # should only be able to access own page
+    change_url = reverse(
+        "admin:sessionprofile_sessionprofile_change",
+        args=[admin_user_session.session_key],
+    )
+    response = client.get(change_url)
+    assert response.status_code == 200
 
-def test_delete_with_session_db_backend(
-    client, admin_user, session_changelist_url, db_session_store
-):
+    change_url = reverse(
+        "admin:sessionprofile_sessionprofile_change",
+        args=[other_user_session.session_key],
+    )
+    response = client.get(change_url)
+    assert response.status_code == 302
+    assert response.url == reverse("admin:index")
+
+
+def test_cant_delete_other_users_session(client, admin_user, django_user_model):
+    client.force_login(admin_user)
+
+    other_admin = django_user_model.objects.create_superuser("garry")
+
+    other_user_session = SessionProfileFactory(user=other_admin)
+
+    delete_url = reverse(
+        "admin:sessionprofile_sessionprofile_delete",
+        args=[other_user_session.session_key],
+    )
+
+    response = client.post(delete_url, {"post": "yes"})
+    assert response.status_code == 302
+
+    SessionStore = get_session_store()
+
+    assert SessionStore().exists(other_user_session.session_key)
+
+
+def test_delete_with_session_db_backend(client, admin_user, session_changelist_url):
     client.force_login(admin_user)
 
     session = SessionProfileFactory(user=admin_user)
@@ -65,7 +100,7 @@ def test_delete_with_session_db_backend(
     assert SessionProfile.objects.count() == 1
     # sesison created by login
     assert Session.objects.count() == 2
-    assert db_session_store().exists(session.session_key)
+    assert DBSessionStore().exists(session.session_key)
 
     url = reverse("admin:sessionprofile_sessionprofile_delete", args=[session.pk])
 
@@ -76,19 +111,18 @@ def test_delete_with_session_db_backend(
     assert SessionProfile.objects.count() == 1
     assert SessionProfile.objects.count() != session
     assert Session.objects.count() == 1
-    assert not db_session_store().exists(session.session_key)
+    assert not DBSessionStore().exists(session.session_key)
 
 
-def test_delete_with_session_cache_backend(
-    client, admin_user, session_changelist_url, cache_session_store
-):
+@override_settings(SESSION_ENGINE="django.contrib.sessions.backends.cache")
+def test_delete_with_session_cache_backend(client, admin_user, session_changelist_url):
     client.force_login(admin_user)
 
     session = SessionProfileFactory(user=admin_user)
 
     assert SessionProfile.objects.count() == 1
     assert Session.objects.count() == 0
-    assert cache_session_store().exists(session.session_key)
+    assert CachedSessionStore().exists(session.session_key)
 
     url = reverse("admin:sessionprofile_sessionprofile_delete", args=[session.pk])
 
@@ -99,11 +133,11 @@ def test_delete_with_session_cache_backend(
     assert SessionProfile.objects.count() == 1
     assert SessionProfile.objects.count() != session
     assert Session.objects.count() == 0
-    assert not cache_session_store().exists(session.session_key)
+    assert not CachedSessionStore().exists(session.session_key)
 
 
 def test_delete_action_with_session_db_backend(
-    client, admin_user, session_changelist_url, db_session_store
+    client, admin_user, session_changelist_url
 ):
     client.force_login(admin_user)
     sessions = SessionProfileFactory.create_batch(5, user=admin_user)
@@ -114,7 +148,7 @@ def test_delete_action_with_session_db_backend(
 
     session_keys = [session.session_key for session in sessions]
     for session_key in session_keys:
-        assert db_session_store().exists(session_key)
+        assert DBSessionStore().exists(session_key)
 
     response = client.post(
         session_changelist_url,
@@ -127,11 +161,12 @@ def test_delete_action_with_session_db_backend(
     assert Session.objects.count() == 1
 
     for session_key in session_keys:
-        assert not db_session_store().exists(session_key)
+        assert not DBSessionStore().exists(session_key)
 
 
+@override_settings(SESSION_ENGINE="django.contrib.sessions.backends.cache")
 def test_delete_action_with_session_cache_backend(
-    client, admin_user, session_changelist_url, cache_session_store
+    client, admin_user, session_changelist_url
 ):
 
     client.force_login(admin_user)
@@ -145,7 +180,7 @@ def test_delete_action_with_session_cache_backend(
 
     # sessions are created
     for session_key in session_keys:
-        assert cache_session_store().exists(session_key)
+        assert CachedSessionStore().exists(session_key)
 
     response = client.post(
         session_changelist_url,
@@ -159,4 +194,4 @@ def test_delete_action_with_session_cache_backend(
 
     # sessions should be deleted
     for session_key in session_keys:
-        assert not cache_session_store().exists(session_key)
+        assert not CachedSessionStore().exists(session_key)

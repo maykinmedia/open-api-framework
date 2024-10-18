@@ -231,12 +231,14 @@ INSTALLED_APPS = [
     "mozilla_django_oidc_db",
     "log_outgoing_requests",
     "django_setup_configuration",
+    "sessionprofile",
     "open_api_framework",
     PROJECT_DIRNAME,
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "sessionprofile.middleware.SessionProfileMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
