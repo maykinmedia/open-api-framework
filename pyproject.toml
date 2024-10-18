@@ -56,6 +56,7 @@ dependencies = [
     "flower>=2.0.1",
     "maykin-2fa>=1.0.1",
     "django-setup-configuration>=0.1.0",
+    "django-sessionprofile>=3.0.0",
 ]
 
 [project.urls]
@@ -72,6 +73,7 @@ tests = [
     "isort",
     "black",
     "flake8",
+    "factory-boy",
 ]
 coverage = [
     "pytest-cov",
