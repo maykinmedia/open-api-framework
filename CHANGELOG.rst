@@ -1,6 +1,21 @@
 Changelog
 =========
 
+0.9.0 (2024-11-11)
+------------------
+**New Features**
+
+* Add ``SESSION_COOKIE_AGE`` configurable setting
+* Add user session management admin
+
+.. note::
+
+ SessionProfile admin should be added to admin index and its fixture.
+
+**Bugfixes/QOL**
+
+* fix runtime configuration for django-log-outgoing-requests
+
 0.8.1 (2024-09-26)
 ------------------
 
