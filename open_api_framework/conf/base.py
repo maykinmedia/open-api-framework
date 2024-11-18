@@ -507,6 +507,11 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": True,
         },
+        "celery": {
+            "handlers": logging_root_handlers,
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
     },
 }
 
