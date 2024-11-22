@@ -377,6 +377,13 @@ if LOG_QUERIES and not DEBUG:
         RuntimeWarning,
     )
 
+CELERY_LOGLEVEL = config(
+    "CELERY_LOGLEVEL",
+    default="INFO",
+    help_text="control the verbosity of logging output for celery, separate from ``LOG_LEVEL``."
+    " Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``",
+)
+
 LOGGING_DIR = Path(BASE_DIR) / "log"
 
 logging_root_handlers = ["console"] if LOG_STDOUT else ["project"]
@@ -414,6 +421,19 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "db",
+        },
+        "console_celery": {
+            "level": CELERY_LOGLEVEL,
+            "class": "logging.StreamHandler",
+            "formatter": "timestamped",
+        },
+        "celery_file": {
+            "level": CELERY_LOGLEVEL,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": Path(LOGGING_DIR) / "celery.log",
+            "formatter": "verbose",
+            "maxBytes": 1024 * 1024 * 10,  # 10 MB
+            "backupCount": 10,
         },
         "django": {
             "level": LOG_LEVEL,
@@ -508,8 +528,8 @@ LOGGING = {
             "propagate": True,
         },
         "celery": {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
+            "handlers": ["console_celery"] if LOG_STDOUT else ["celery_file"],
+            "level": CELERY_LOGLEVEL,
             "propagate": True,
         },
     },
