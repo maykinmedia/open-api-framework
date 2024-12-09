@@ -350,7 +350,7 @@ DEFAULT_FROM_EMAIL = config(
 # LOGGING
 #
 LOG_STDOUT = config(
-    "LOG_STDOUT", default=False, help_text="whether to log to stdout or not"
+    "LOG_STDOUT", default=True, help_text="whether to log to stdout or not"
 )
 LOG_LEVEL = config(
     "LOG_LEVEL",
@@ -380,7 +380,7 @@ if LOG_QUERIES and not DEBUG:
 CELERY_LOGLEVEL = config(
     "CELERY_LOGLEVEL",
     default="INFO",
-    help_text="control the verbosity of logging output for celery, separate from ``LOG_LEVEL``."
+    help_text="control the verbosity of logging output for celery, independent of ``LOG_LEVEL``."
     " Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``",
 )
 
@@ -422,7 +422,7 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "db",
         },
-        "console_celery": {
+        "celery_console": {
             "level": CELERY_LOGLEVEL,
             "class": "logging.StreamHandler",
             "formatter": "timestamped",
@@ -528,7 +528,7 @@ LOGGING = {
             "propagate": True,
         },
         "celery": {
-            "handlers": ["console_celery"] if LOG_STDOUT else ["celery_file"],
+            "handlers": ["celery_console"] if LOG_STDOUT else ["celery_file"],
             "level": CELERY_LOGLEVEL,
             "propagate": True,
         },
