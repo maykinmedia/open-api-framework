@@ -350,7 +350,7 @@ DEFAULT_FROM_EMAIL = config(
 # LOGGING
 #
 LOG_STDOUT = config(
-    "LOG_STDOUT", default=False, help_text="whether to log to stdout or not"
+    "LOG_STDOUT", default=True, help_text="whether to log to stdout or not"
 )
 LOG_LEVEL = config(
     "LOG_LEVEL",
@@ -376,6 +376,13 @@ if LOG_QUERIES and not DEBUG:
         "Requested LOG_QUERIES=1 but DEBUG is false, no query logs will be emited.",
         RuntimeWarning,
     )
+
+CELERY_LOGLEVEL = config(
+    "CELERY_LOGLEVEL",
+    default="INFO",
+    help_text="control the verbosity of logging output for celery, independent of ``LOG_LEVEL``."
+    " Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``",
+)
 
 LOGGING_DIR = Path(BASE_DIR) / "log"
 
@@ -414,6 +421,19 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "db",
+        },
+        "celery_console": {
+            "level": CELERY_LOGLEVEL,
+            "class": "logging.StreamHandler",
+            "formatter": "timestamped",
+        },
+        "celery_file": {
+            "level": CELERY_LOGLEVEL,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": Path(LOGGING_DIR) / "celery.log",
+            "formatter": "verbose",
+            "maxBytes": 1024 * 1024 * 10,  # 10 MB
+            "backupCount": 10,
         },
         "django": {
             "level": LOG_LEVEL,
@@ -505,6 +525,11 @@ LOGGING = {
                 else ["save_outgoing_requests"]
             ),
             "level": "DEBUG",
+            "propagate": True,
+        },
+        "celery": {
+            "handlers": ["celery_console"] if LOG_STDOUT else ["celery_file"],
+            "level": CELERY_LOGLEVEL,
             "propagate": True,
         },
     },
