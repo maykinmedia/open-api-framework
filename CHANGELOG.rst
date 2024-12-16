@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.9.1 (2024-12-16)
+------------------
+
+**Bugfixes/QOL**
+
+* Change ``LOG_STDOUT`` default value to True
+* Re-add separate ``CELERY_LOGLEVEL`` configuration setting
+
+
 0.9.0 (2024-11-11)
 ------------------
 **New Features**
