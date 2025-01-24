@@ -4,6 +4,8 @@ from sessionprofile.models import SessionProfile
 
 from open_api_framework.utils import get_session_store
 
+admin.site.enable_nav_sidebar = False
+
 
 @admin.register(SessionProfile)
 class SessionProfileAdmin(admin.ModelAdmin):
