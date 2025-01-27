@@ -2,6 +2,8 @@ from django import template
 
 from decouple import Undefined
 
+from open_api_framework.utils import get_configuraton_step_context
+
 register = template.Library()
 
 
@@ -33,3 +35,8 @@ def ensure_endswith(value, char):
     if not value.endswith(char):
         value += char
     return value
+
+
+@register.inclusion_tag("open_api_framework/components/setup_config_step.rst")
+def render_setup_configuraiton_step(step_path):
+    return get_configuraton_step_context(step_path)
