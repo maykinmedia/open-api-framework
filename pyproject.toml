@@ -68,6 +68,7 @@ Documentation = "http://open_api_framework.readthedocs.io/en/latest/"
 tests = [
     "pytest",
     "pytest-django",
+    "pytest-env",
     "tox",
     "isort",
     "black",
@@ -100,7 +101,10 @@ sections=["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = "."
-DJANGO_SETTINGS_MODULE = "testapp.settings"
+env = [
+    "DJANGO_SETTINGS_MODULE=testapp.settings",
+    "SECRET_KEY=not-so-secret",
+]
 
 [tool.bumpversion]
 current_version = "0.9.2"
