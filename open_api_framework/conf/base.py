@@ -2,7 +2,6 @@ import datetime
 import os
 import warnings
 from pathlib import Path
-from typing import Callable
 
 from django.urls import reverse_lazy
 
@@ -822,8 +821,10 @@ SENTRY_DSN = config(
 SENTRY_BEFORE_SEND = config(
     "SENTRY_BEFORE_SEND",
     None,
-    help_text=("Callback, which allows projects to define their own before_send filters"),
-    auto_display_default=False
+    help_text=(
+        "Callback, which allows projects to define their own before_send filters"
+    ),
+    auto_display_default=False,
 )
 
 if SENTRY_DSN:
