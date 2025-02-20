@@ -99,6 +99,7 @@ sections=["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = "."
 DJANGO_SETTINGS_MODULE = "testapp.settings"
 
 [tool.bumpversion]
