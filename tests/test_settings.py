@@ -4,4 +4,5 @@ def test_sentry_settings():
     """
     from django.conf import settings
 
-    assert "SENTRY_DSN" in settings
+    assert hasattr(settings, "SENTRY_CONFIG") is True
+    assert hasattr(settings, "SENTRY_DSN") is True

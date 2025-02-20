@@ -104,6 +104,7 @@ pythonpath = "."
 env = [
     "DJANGO_SETTINGS_MODULE=testapp.settings",
     "SECRET_KEY=not-so-secret",
+    "SENTRY_DSN=https://public@sentry.example.com/1"
 ]
 
 [tool.bumpversion]
