@@ -24,6 +24,7 @@ Features
 
    quickstart
    reference
+   changelog
 
 
 
