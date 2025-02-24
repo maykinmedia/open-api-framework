@@ -32,6 +32,11 @@ Add the following imports to the top of the project's ``base.py`` file:
 After that, compare the settings from `open_api_framework.conf.base`_ to the settings
 defined in the project's ``base.py`` and remove settings from the latter to make use of the generic settings (if this is desired).
 
+.. warning::
+
+    All settings defined in ``open_api_framework.conf.base`` will be loaded when importing from
+    that file, even if only specific settings are imported.
+
 Documenting environment variables
 ---------------------------------
 
