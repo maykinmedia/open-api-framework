@@ -2,7 +2,6 @@ import datetime
 import os
 import warnings
 from pathlib import Path
-from typing import Callable
 
 from django.urls import reverse_lazy
 
@@ -809,35 +808,40 @@ NOTIFICATIONS_DISABLED = config(
 #
 # SENTRY - error monitoring
 #
+SENTRY_DSN = config(
+    "SENTRY_DSN",
+    None,
+    help_text=(
+        "URL of the sentry project to send error reports to. Default empty, "
+        "i.e. -> no monitoring set up. Highly recommended to configure this."
+    ),
+    auto_display_default=False,
+)
 
+SENTRY_BEFORE_SEND = config(
+    "SENTRY_BEFORE_SEND",
+    None,
+    help_text=(
+        "Callback, which allows projects to define their own before_send filters"
+    ),
+    auto_display_default=False,
+)
 
-def init_sentry(before_send: Callable | None = None):
-    SENTRY_DSN = config(
-        "SENTRY_DSN",
-        None,
-        help_text=(
-            "URL of the sentry project to send error reports to. Default empty, "
-            "i.e. -> no monitoring set up. Highly recommended to configure this."
-        ),
-        auto_display_default=False,
+if SENTRY_DSN:
+    SENTRY_CONFIG = {
+        "dsn": SENTRY_DSN,
+        "release": RELEASE or "RELEASE not set",
+        "environment": ENVIRONMENT,
+    }
+
+    if SENTRY_BEFORE_SEND:
+        SENTRY_CONFIG["before_send"] = SENTRY_BEFORE_SEND
+
+    sentry_sdk.init(
+        **SENTRY_CONFIG,
+        integrations=get_sentry_integrations(),
+        send_default_pii=True,
     )
-
-    if SENTRY_DSN:
-        SENTRY_CONFIG = {
-            "dsn": SENTRY_DSN,
-            "release": RELEASE or "RELEASE not set",
-            "environment": ENVIRONMENT,
-        }
-
-        # Allow projects to define their own before_send filters
-        if before_send:
-            SENTRY_CONFIG["before_send"] = before_send
-
-        sentry_sdk.init(
-            **SENTRY_CONFIG,
-            integrations=get_sentry_integrations(),
-            send_default_pii=True,
-        )
 
 
 #

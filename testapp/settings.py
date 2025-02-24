@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from open_api_framework.conf.base import SENTRY_CONFIG, SENTRY_DSN  # noqa
 from open_api_framework.conf.utils import config
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
