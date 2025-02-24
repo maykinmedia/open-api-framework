@@ -1,6 +1,44 @@
 Changelog
 =========
 
+0.9.3 (2025-02-24)
+------------------
+
+**Bugfixes**
+
+* [#88] Automatically initialize Sentry when importing base settings and expose ``SENTRY_CONFIG`` setting
+
+    .. warning::
+
+        The ``init_sentry`` function was removed and now Sentry is initialized immediately in
+        ``open_api_framework/conf/base.py``. If your project requires additional parameters
+        to be specified (e.g. a ``before_send`` hook), it is best to reinitialize Sentry manually in your project's base setting:
+
+        .. code-block:: python
+
+            from open_api_framework.conf.base import *  # noqa
+            from open_api_framework.conf.utils import get_sentry_integrations
+
+            from your_project.utils import before_send_hook
+
+            # Reinitialize Sentry to add the before_send hook
+            SENTRY_CONFIG["before_send"] = before_send_hook
+            sentry_sdk.init(
+                **SENTRY_CONFIG,
+                integrations=get_sentry_integrations(),
+                send_default_pii=True,
+            )
+
+
+**Maintenance**
+
+* [#90] bump commonground api version to 2.1.2
+
+**Documentation**
+
+* [#108] Mention in docs that importing anything from ``base.py`` causes all settings to be loaded
+
+
 0.9.2 (2025-01-02)
 ------------------
 
