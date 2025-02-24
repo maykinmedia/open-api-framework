@@ -818,24 +818,12 @@ SENTRY_DSN = config(
     auto_display_default=False,
 )
 
-SENTRY_BEFORE_SEND = config(
-    "SENTRY_BEFORE_SEND",
-    None,
-    help_text=(
-        "Callback, which allows projects to define their own before_send filters"
-    ),
-    auto_display_default=False,
-)
-
 if SENTRY_DSN:
     SENTRY_CONFIG = {
         "dsn": SENTRY_DSN,
         "release": RELEASE or "RELEASE not set",
         "environment": ENVIRONMENT,
     }
-
-    if SENTRY_BEFORE_SEND:
-        SENTRY_CONFIG["before_send"] = SENTRY_BEFORE_SEND
 
     sentry_sdk.init(
         **SENTRY_CONFIG,
