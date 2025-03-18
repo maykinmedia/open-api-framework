@@ -35,6 +35,12 @@ SITE_ID = config(
     help_text="The database ID of the site object. You usually won't have to touch this.",
 )
 
+SITE_DOMAIN = config(
+    "SITE_DOMAIN",
+    default="example.com",
+    help_text=("Defines the primary domain where the application is hosted."),
+)
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config(
     "SECRET_KEY",
