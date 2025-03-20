@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.9.4 (2024-03-20)
+------------------
+
+**Maintenance**
+
+* [#59] Remove ``django.contrib.sites`` dependency and add ``SITE_DOMAIN`` environment variable
+
+
 0.9.3 (2025-02-24)
 ------------------
 
