@@ -1,7 +1,15 @@
 Changelog
 =========
 
-0.9.4 (2024-03-20)
+0.9.5 (2025-03-24)
+------------------
+
+**Maintenance**
+
+* [#open-zaak/open-zaak#1856] Allow Django 5 as a dependency.
+
+
+0.9.4 (2025-03-20)
 ------------------
 
 **Maintenance**
