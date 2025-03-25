@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open-api-framework"
-version = "0.9.4"
+version = "0.9.5"
 description = "A metapackage for registration components, that bundles the dependencies shared between these components and provides generic settings"
 authors = [
     {name = "Maykin Media", email = "support@maykinmedia.nl"}
@@ -16,6 +16,7 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Framework :: Django",
     "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.1",
     "Intended Audience :: Developers",
     "Operating System :: Unix",
     "Operating System :: MacOS",
@@ -108,7 +109,7 @@ env = [
 ]
 
 [tool.bumpversion]
-current_version = "0.9.4"
+current_version = "0.9.5"
 files = [
     {filename = "pyproject.toml"},
     {filename = "README.rst"},
