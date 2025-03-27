@@ -799,7 +799,7 @@ NOTIFICATIONS_DISABLED = config(
 )
 SITE_DOMAIN = config(
     "SITE_DOMAIN",
-    default="example.com",
+    default="",
     help_text=("Defines the primary domain where the application is hosted."),
 )
 
