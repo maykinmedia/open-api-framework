@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.9.6 (2025-03-28)
+------------------
+
+**Maintenance**
+
+* [#59] Set ``SITE_DOMAIN`` default to an empty string and add ``SITE_ID``
+
+
 0.9.5 (2025-03-24)
 ------------------
 
