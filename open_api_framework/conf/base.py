@@ -29,6 +29,11 @@ BASE_DIR = Path(DJANGO_PROJECT_DIR).resolve().parents[1]
 #
 # Core Django settings
 #
+SITE_ID = config(
+    "SITE_ID",
+    default=1,
+    help_text="The database ID of the site object. You usually won't have to touch this.",
+)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config(
@@ -799,7 +804,7 @@ NOTIFICATIONS_DISABLED = config(
 )
 SITE_DOMAIN = config(
     "SITE_DOMAIN",
-    default="example.com",
+    default="",
     help_text=("Defines the primary domain where the application is hosted."),
 )
 
