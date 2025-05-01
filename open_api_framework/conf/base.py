@@ -564,8 +564,7 @@ SESSION_COOKIE_AGE = config(
     help_text="For how long, in seconds, the session cookie will be valid.",
 )
 
-
-LOGIN_URL = reverse_lazy("admin:login")
+LOGIN_URL = "admin:login"
 LOGIN_REDIRECT_URL = reverse_lazy("admin:index")
 LOGOUT_REDIRECT_URL = reverse_lazy("admin:index")
 
