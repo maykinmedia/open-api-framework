@@ -75,6 +75,8 @@ tests = [
     "black",
     "flake8",
     "factory-boy",
+    "django-rosetta",
+    "django-webtest"
 ]
 coverage = [
     "pytest-cov",
