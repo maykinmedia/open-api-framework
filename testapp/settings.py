@@ -28,6 +28,8 @@ IS_HTTPS = config(
     ),
     auto_display_default=False,
 )
+STATIC_URL = "/static/"
+LOGIN_URL = "admin:login"
 
 USE_TZ = config("USE_TZ", True, add_to_docs=False)
 
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     "open_api_framework",
     "sessionprofile",
     "testapp",
+    "rosetta",
 ]
 
 MIDDLEWARE = [
