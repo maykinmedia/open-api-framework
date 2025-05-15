@@ -1,3 +1,4 @@
+import logging  # noqa: TID251
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -6,6 +7,7 @@ from urllib.parse import urlparse
 
 from decouple import Csv, Undefined, config as _config, undefined
 from sentry_sdk.integrations import DidNotEnable, django, redis
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 
 @dataclass
@@ -102,6 +104,20 @@ def get_sentry_integrations() -> list:
         pass
     else:
         extra.append(celery.CeleryIntegration())
+
+    try:
+        import structlog  # type: ignore  # noqa
+    except ImportError:
+        pass
+    else:
+        extra.append(
+            LoggingIntegration(
+                level=logging.INFO,  # breadcrumbs
+                # do not send any logs as event to Sentry at all - these must be scraped by
+                # the (container) infrastructure instead.
+                event_level=None,
+            ),
+        )
 
     return [*default, *extra]
 

@@ -365,6 +365,7 @@ LOG_QUERIES = config(
         "must also set ``DEBUG=1``, which should be done very sparingly!"
     ),
 )
+# XXX: this should be renamed to `LOG_OUTGOING_REQUESTS` in the next major release
 LOG_REQUESTS = config(
     "LOG_REQUESTS", default=False, help_text="enable logging of the outgoing requests"
 )
