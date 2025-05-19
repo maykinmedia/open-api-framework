@@ -347,7 +347,10 @@ DEFAULT_FROM_EMAIL = config(
 # LOGGING
 #
 LOG_STDOUT = config(
-    "LOG_STDOUT", default=True, help_text="whether to log to stdout or not"
+    "LOG_STDOUT",
+    default=True,
+    help_text="whether to log to stdout or not",
+    group="Logging",
 )
 LOG_LEVEL = config(
     "LOG_LEVEL",
@@ -356,6 +359,7 @@ LOG_LEVEL = config(
         "control the verbosity of logging output. "
         "Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``"
     ),
+    group="Logging",
 )
 LOG_QUERIES = config(
     "LOG_QUERIES",
@@ -364,9 +368,14 @@ LOG_QUERIES = config(
         "enable (query) logging at the database backend level. Note that you "
         "must also set ``DEBUG=1``, which should be done very sparingly!"
     ),
+    group="Logging",
 )
+# XXX: this should be renamed to `LOG_OUTGOING_REQUESTS` in the next major release
 LOG_REQUESTS = config(
-    "LOG_REQUESTS", default=False, help_text="enable logging of the outgoing requests"
+    "LOG_REQUESTS",
+    default=False,
+    help_text="enable logging of the outgoing requests",
+    group="Logging",
 )
 if LOG_QUERIES and not DEBUG:
     warnings.warn(
@@ -379,6 +388,7 @@ CELERY_LOGLEVEL = config(
     default="INFO",
     help_text="control the verbosity of logging output for celery, independent of ``LOG_LEVEL``."
     " Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``",
+    group="Celery",
 )
 
 LOGGING_DIR = Path(BASE_DIR) / "log"
@@ -952,22 +962,26 @@ LOG_OUTGOING_REQUESTS_EMIT_BODY = config(
     "LOG_OUTGOING_REQUESTS_EMIT_BODY",
     default=True,
     help_text="Whether or not outgoing request bodies should be logged",
+    group="Logging",
 )
 LOG_OUTGOING_REQUESTS_DB_SAVE = config(
     "LOG_OUTGOING_REQUESTS_DB_SAVE",
     default=False,
     help_text="Whether or not outgoing request logs should be saved to the database",
+    group="Logging",
 )
 LOG_OUTGOING_REQUESTS_DB_SAVE_BODY = config(
     "LOG_OUTGOING_REQUESTS_DB_SAVE_BODY",
     default=True,
     help_text="Whether or not outgoing request bodies should be saved to the database",
+    group="Logging",
 )
 LOG_OUTGOING_REQUESTS_RESET_DB_SAVE_AFTER = None
 LOG_OUTGOING_REQUESTS_MAX_AGE = config(
     "LOG_OUTGOING_REQUESTS_MAX_AGE",
     default=7,
     help_text="The amount of time after which request logs should be deleted from the database",
+    group="Logging",
 )  # number of days
 
 
