@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.10.0 (2025-05-19)
+-------------------
+
+**New features**
+
+* Add separate "Logging" group for logging related environment variables in docs
+* Add ``open_api_framework.conf.utils.mute_logging`` util to silence logging in CI
+* [maykinmedia/objects-api#592] Silence log events in Sentry if structlog is used
+
+**Bugfixes**
+
+* [#127] Make ``LOGIN_URL`` non-lazy to avoid errors when using ``django-rosetta``
+
 0.9.6 (2025-03-28)
 ------------------
 
