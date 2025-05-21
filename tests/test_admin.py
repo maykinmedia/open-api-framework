@@ -18,7 +18,6 @@ def session_changelist_url():
 
 
 def test_session_profile_sanity(client, admin_user, session_changelist_url):
-
     client.force_login(admin_user)
     response = client.get(session_changelist_url)
     assert response.status_code == 200
@@ -32,7 +31,6 @@ def test_session_profile_sanity(client, admin_user, session_changelist_url):
 def test_only_session_profile_of_user_shown(
     client, admin_user, django_user_model, session_changelist_url
 ):
-
     other_admin = django_user_model.objects.create_superuser("garry")
 
     client.force_login(other_admin)
@@ -168,7 +166,6 @@ def test_delete_action_with_session_db_backend(
 def test_delete_action_with_session_cache_backend(
     client, admin_user, session_changelist_url
 ):
-
     client.force_login(admin_user)
     sessions = SessionProfileFactory.create_batch(5, user=admin_user)
 
