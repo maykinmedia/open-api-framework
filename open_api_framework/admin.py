@@ -11,7 +11,6 @@ class SessionProfileAdmin(admin.ModelAdmin):
 
     @property
     def SessionStore(self):
-
         return get_session_store()
 
     def get_queryset(self, request):
@@ -33,7 +32,6 @@ class SessionProfileAdmin(admin.ModelAdmin):
         super().delete_model(request, obj)
 
     def delete_queryset(self, request, queryset):
-
         for session_profile in queryset.iterator():
             self.SessionStore(session_profile.session_key).flush()
 

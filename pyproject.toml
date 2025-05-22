@@ -71,9 +71,7 @@ tests = [
     "pytest-django",
     "pytest-env",
     "tox",
-    "isort",
-    "black",
-    "flake8",
+    "ruff",
     "factory-boy",
     "django-rosetta",
     "django-webtest"
@@ -93,13 +91,6 @@ release = [
 [tool.setuptools.packages.find]
 include = ["open_api_framework*"]
 namespaces = false
-
-[tool.isort]
-profile = "black"
-combine_as_imports = true
-known_django = "django"
-known_first_party="open_api_framework"
-sections=["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

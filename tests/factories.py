@@ -5,7 +5,6 @@ from open_api_framework.utils import get_session_store
 
 
 class SessionProfileFactory(factory.django.DjangoModelFactory):
-
     session_key = factory.fuzzy.FuzzyText(length=40)
 
     class Meta:
