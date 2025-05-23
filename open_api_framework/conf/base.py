@@ -374,7 +374,10 @@ LOG_QUERIES = config(
 LOG_REQUESTS = config(
     "LOG_REQUESTS",
     default=False,
-    help_text="enable logging of the outgoing requests",
+    help_text=(
+        "enable logging of the outgoing requests. "
+        "This must be enabled along with `LOG_OUTGOING_REQUESTS_DB_SAVE` to save outgoing request logs in the database."
+    ),
     group="Logging",
 )
 if LOG_QUERIES and not DEBUG:
@@ -529,7 +532,7 @@ LOGGING = {
             "handlers": (
                 ["log_outgoing_requests", "save_outgoing_requests"]
                 if LOG_REQUESTS
-                else ["save_outgoing_requests"]
+                else []
             ),
             "level": "DEBUG",
             "propagate": True,
