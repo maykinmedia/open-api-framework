@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.10.1 (2025-05-23)
+-------------------
+
+**Maintenance**
+
+* [#133] Replace ``black``, ``isort`` and ``flake8`` with ``ruff`` and update code-quality workflow
+* Do not use ``save_outgoing_requests`` log handler if ``LOG_REQUESTS`` is set to false
+
+
 0.10.0 (2025-05-19)
 -------------------
 
