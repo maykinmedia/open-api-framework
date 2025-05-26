@@ -1,6 +1,21 @@
 Changelog
 =========
 
+0.10.1 (2025-05-26)
+-------------------
+
+**Bugfixes**
+
+* Do not use ``save_outgoing_requests`` log handler if ``LOG_REQUESTS`` is set to false
+
+**Maintenance**
+
+* [#132] Replace ``check_sphinx.py`` with ``make``
+* [#133] Replace ``black``, ``isort`` and ``flake8`` with ``ruff`` and update code-quality workflow
+* [#140] Upgrade python to 3.12
+* Upgrade codecov action to v4
+
+
 0.10.0 (2025-05-19)
 -------------------
 
