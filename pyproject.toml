@@ -57,6 +57,7 @@ dependencies = [
     "maykin-2fa>=1.0.1",
     "django-setup-configuration>=0.1.0",
     "django-sessionprofile>=3.0.0",
+    "django-upgrade-check>=1.1.0",
 ]
 
 [project.urls]
