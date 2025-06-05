@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.urls import reverse
 
-import requests_mock
 from django_webtest import WebTest
 
 
@@ -14,9 +13,8 @@ def test_sentry_settings():
     assert hasattr(settings, "SENTRY_DSN") is True
 
 
-@requests_mock.Mocker()
 class RosettaTests(WebTest):
-    def test_rosetta_redirect_fails_with_lazy_login_url(self, m):
+    def test_rosetta_redirect_fails_with_lazy_login_url(self):
         response = self.app.get("/admin/rosetta/files/project/")
 
         expected_login_url = (

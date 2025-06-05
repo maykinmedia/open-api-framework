@@ -15,20 +15,17 @@ keywords = ["metapackage", "dependencies", "settings"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Framework :: Django",
-    "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
     "Intended Audience :: Developers",
     "Operating System :: Unix",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
-    "django>=4.2.17",
+    "django>=5.2",
     "django-axes>=6.5.1",
     "django-cors-headers>=4.4.0",
     "django-markup>=1.8.1",
@@ -57,6 +54,7 @@ dependencies = [
     "maykin-2fa>=1.0.1",
     "django-setup-configuration>=0.1.0",
     "django-sessionprofile>=3.0.0",
+    "django-upgrade-check>=1.1.0",
 ]
 
 [project.urls]
