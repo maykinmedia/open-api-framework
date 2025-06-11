@@ -229,6 +229,8 @@ INSTALLED_APPS = [
     "sessionprofile",
     "open_api_framework",
     PROJECT_DIRNAME,
+    # Django libraries
+    "upgrade_check",
 ]
 
 MIDDLEWARE = [
