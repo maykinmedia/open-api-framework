@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.10.2 (2025-06-11)
+-------------------
+
+**New features**
+
+* [#139] Add ``django-upgrade-check`` dependency and set Python 3.12 as the minimum required version
+
 0.10.1 (2025-05-26)
 -------------------
 
