@@ -356,7 +356,7 @@ LOG_STDOUT = config(
 )
 LOG_LEVEL = config(
     "LOG_LEVEL",
-    default="WARNING",
+    default="INFO",
     help_text=(
         "control the verbosity of logging output. "
         "Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``"
