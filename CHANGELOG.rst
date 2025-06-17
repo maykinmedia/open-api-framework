@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.10.3 (2025-06-17)
+-------------------
+
+**Bugfixes**
+
+* [maykinmedia/objects-api#620] Change ``LOG_LEVEL`` environment variable default value from ``WARNING`` to ``INFO``
+
 0.10.2 (2025-06-11)
 -------------------
 
