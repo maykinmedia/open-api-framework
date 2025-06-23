@@ -133,7 +133,11 @@ DATABASES = {
             auto_display_default=False,
         ),
         "PORT": config(
-            "DB_PORT", 5432, group="Database", help_text="port number of the database"
+            "DB_PORT",
+            5432,
+            group="Database",
+            help_text="port number of the database",
+            cast=lambda s: s and int(s),
         ),
     }
 }
