@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.11.0 (2025-07-03)
+-------------------
+
+**New features**
+
+* Replace ``psycopg2`` with ``psycopg[binary]`` to support connection pooling
+
 0.10.3 (2025-06-17)
 -------------------
 
