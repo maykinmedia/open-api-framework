@@ -91,7 +91,7 @@ csp = [
     "django-csp>=3.8"
 ]
 commonground = [
-    "commonground-api-common>=2.1.2"
+    "commonground-api-common>=2.7.0"
 ]
 inclusions = [
     "djangorestframework-inclusions>=1.2.0"
