@@ -6,7 +6,7 @@ from typing import Any, Optional
 from urllib.parse import urlparse
 
 from decouple import Csv, Undefined, config as _config, undefined
-from sentry_sdk.integrations import DidNotEnable, django
+from sentry_sdk.integrations import DidNotEnable, django, redis
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 
@@ -94,6 +94,7 @@ def get_sentry_integrations() -> list:
     """
     default = [
         django.DjangoIntegration(),
+        redis.RedisIntegration(),
     ]
     extra = []
 

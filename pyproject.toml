@@ -102,6 +102,9 @@ sanitization = [
 server = [
     "uwsgi>=2.0.23"
 ]
+redis = [
+    "django-redis>=5.4.0"
+]
 
 [tool.setuptools.packages.find]
 include = ["open_api_framework*"]
