@@ -1,6 +1,44 @@
 Changelog
 =========
 
+0.12.0 (2025-07-15)
+-------------------
+
+**💥 Breaking changes**
+
+* Specify optional dependency groups:
+
+    * **celery**: ``celery``, ``flower``
+    * **cors**: ``django-cors-headers``
+    * **markup**: ``django-markup``
+    * **geo**: ``djangorestframework-gis``
+    * **csp**: ``django-csp``
+    * **commonground**: ``commonground-api-common``
+    * **inclusions**: ``djangorestframework-inclusions``
+    * **sanitization**: ``bleach``
+    * **server**: ``uwsgi``
+    * **redis**: ``django-redis``
+
+**New features**
+
+* Add DB connection pooling envvars + configuration (with workaround to make sure it works with APM)
+
+    * ``DB_POOL_ENABLED``
+    * ``DB_POOL_MIN_SIZE``
+    * ``DB_POOL_MAX_SIZE``
+    * ``DB_POOL_TIMEOUT``
+    * ``DB_POOL_MAX_WAITING``
+    * ``DB_POOL_MAX_LIFETIME``
+    * ``DB_POOL_MAX_IDLE``
+    * ``DB_POOL_RECONNECT_TIMEOUT``
+    * ``DB_POOL_NUM_WORKERS``
+
+* Add ``DB_CONN_MAX_AGE`` envvar (automatically set to 0 if connection pooling is enabled)
+
+**Maintenance**
+
+* Pin ```commonground-api-common``` to 2.7.0 or higher
+
 0.11.0 (2025-07-03)
 -------------------
 
