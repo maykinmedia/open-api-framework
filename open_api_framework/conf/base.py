@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 
 import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
+from csp.constants import NONCE, NONE, SELF
 from log_outgoing_requests.formatters import HttpFormatter
 from notifications_api_common.settings import *  # noqa
 
@@ -1153,95 +1154,86 @@ LOG_OUTGOING_REQUESTS_MAX_AGE = config(
 #
 # NOTE: make sure values are a tuple or list, and to quote special values like 'self'
 
-# ideally we'd use BASE_URI but it'd have to be lazy or cause issues
-CSP_DEFAULT_SRC = ["'self'"] + config(
-    "CSP_EXTRA_DEFAULT_SRC",
-    default=[],
-    split=True,
-    group="Content Security Policy",
-    help_text="Extra default source URLs for CSP other than ``self``. "
-    "Used for ``img-src``, ``style-src`` and ``script-src``",
-)
 
-
-CSP_REPORT_URI = config(
-    "CSP_REPORT_URI",
-    None,
-    group="Content Security Policy",
-    help_text="URI of the``report-uri`` directive.",
-)
-CSP_REPORT_PERCENTAGE = config(
-    "CSP_REPORT_PERCENTAGE",
-    0,
-    group="Content Security Policy",
-    help_text="Percentage of requests that get the ``report-uri`` directive.",
-)  # float between 0 and 1
-
-CSP_FORM_ACTION = (
-    config(
-        "CSP_FORM_ACTION",
-        default=["\"'self'\""]
-        + config(
-            "CSP_EXTRA_FORM_ACTION",
-            default=[],
-            split=True,
-            group="Content Security Policy",
-            help_text="Add additional ``form-action`` source to the default ",
-        ),
-        split=True,
-        group="Content Security Policy",
-        help_text="Override the default ``form-action`` source",
-    )
-    + CORS_ALLOWED_ORIGINS
-)
-
-CSP_IMG_SRC = (
-    CSP_DEFAULT_SRC
-    + ["data:", "cdn.redoc.ly"]  # used by DRF spectacular
-    + config(
-        "CSP_EXTRA_IMG_SRC",
+def get_content_security_policy():
+    # ideally we'd use BASE_URI but it'd have to be lazy or cause issues
+    csp_default_src = [SELF] + config(
+        "CSP_EXTRA_DEFAULT_SRC",
         default=[],
         split=True,
         group="Content Security Policy",
-        help_text="Extra ``img-src`` sources for CSP other than ``CSP_DEFAULT_SRC``.",
+        help_text="Extra default source URLs for CSP other than ``self``. Used for ``img-src``, ``style-src`` and ``script-src``.",
     )
-)
+    return {
+        "DIRECTIVES": {
+            "default-src": [SELF]
+            + config(
+                "CSP_EXTRA_DEFAULT_SRC",
+                default=[],
+                split=True,
+                group="Content Security Policy",
+                help_text="Extra default source URLs for CSP other than ``self``. Used for ``img-src``, ``style-src`` and ``script-src``.",
+            ),
+            "form-action": config(
+                "CSP_FORM_ACTION",
+                default=["\"'self'\""]
+                + config(
+                    "CSP_EXTRA_FORM_ACTION",
+                    default=[],
+                    split=True,
+                    group="Content Security Policy",
+                    help_text="Additional `form-action` sources.",
+                ),
+                split=True,
+                group="Content Security Policy",
+                help_text="Override the default `form-action` sources.",
+            )
+            + CORS_ALLOWED_ORIGINS,
+            "img-src": csp_default_src
+            + ["data:", "cdn.redoc.ly"]
+            + config(
+                "CSP_EXTRA_IMG_SRC",
+                default=[],
+                split=True,
+                group="Content Security Policy",
+                help_text="Extra `img-src` sources.",
+            ),
+            "object-src": config(
+                "CSP_OBJECT_SRC",
+                default=["\"'none'\""],
+                split=True,
+                group="Content Security Policy",
+                help_text="`object-src` sources.",
+            ),
+            "style-src": csp_default_src
+            + [NONCE, "'unsafe-inline'", "fonts.googleapis.com"],
+            "script-src": csp_default_src + [NONCE, "'unsafe-inline'"],
+            "font-src": [SELF, "fonts.gstatic.com"],
+            "worker-src": [SELF, "blob:"],
+            "base-uri": [SELF],
+            "frame-ancestors": [NONE],
+            "frame-src": [SELF],
+            "upgrade-insecure-requests": False,  # Enable only in production
+            "report-uri": config(
+                "CSP_REPORT_URI",
+                None,
+                group="Content Security Policy",
+                help_text="URI for CSP report-uri directive.",
+            ),
+        },
+        # Envvar used for django-csp==3.8 was a float between 0 and 1, while django-csp==4.0
+        # expects a percentage (between 0 and 100)
+        "REPORT_PERCENTAGE": config(
+            "CSP_REPORT_PERCENTAGE",
+            0.0,
+            group="Content Security Policy",
+            help_text="Fraction (between 0 and 1) of requests to include report-uri directive.",
+        )
+        * 100,
+    }
 
-# affects <object> and <embed> tags, block everything by default but allow deploy-time
-# overrides.
-CSP_OBJECT_SRC = config(
-    "CSP_OBJECT_SRC",
-    default=["\"'none'\""],
-    split=True,
-    group="Content Security Policy",
-    help_text="``object-src`` urls",
-)
 
-# we must include this explicitly, otherwise the style-src only includes the nonce because
-# of CSP_INCLUDE_NONCE_IN
-CSP_STYLE_SRC = CSP_DEFAULT_SRC + [
-    "'unsafe-inline'",
-    "fonts.googleapis.com",
-]  # used by DRF spectacular
-CSP_SCRIPT_SRC = CSP_DEFAULT_SRC + ["'unsafe-inline'"]
-CSP_FONT_SRC = ("'self'", "fonts.gstatic.com")
-CSP_WORKER_SRC = ("'self'", "blob:")
-
-# firefox does not get the nonce from default-src, see
-# https://stackoverflow.com/a/63376012
-CSP_INCLUDE_NONCE_IN = ["style-src", "script-src"]
-
-# directives that don't fallback to default-src
-CSP_BASE_URI = ["'self'"]
-
-# Frame directives do not fall back to default-src
-CSP_FRAME_ANCESTORS = ["'none'"]  # equivalent to X-Frame-Options: deny
-CSP_FRAME_SRC = ["'self'"]
-# CSP_NAVIGATE_TO = ["'self'"]  # this will break all outgoing links etc  # too much & tricky, see note on MDN
-# CSP_SANDBOX # too much
-
-CSP_UPGRADE_INSECURE_REQUESTS = False  # TODO enable on production?
-
+CONTENT_SECURITY_POLICY = get_content_security_policy()
 
 #
 # Django Solo

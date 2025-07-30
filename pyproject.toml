@@ -88,7 +88,7 @@ geo = [
     "djangorestframework-gis>=1.0"
 ]
 csp = [
-    "django-csp>=3.8"
+    "django-csp>=4.0"
 ]
 commonground = [
     "commonground-api-common>=2.7.0"
