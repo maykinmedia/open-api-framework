@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from open_api_framework.conf.base import SENTRY_CONFIG, SENTRY_DSN  # noqa
+from open_api_framework.conf.base import (
+    CONTENT_SECURITY_POLICY,  # noqa
+    SENTRY_CONFIG,  # noqa
+    SENTRY_DSN,  # noqa
+    get_content_security_policy,  # noqa
+)
 from open_api_framework.conf.utils import config
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
@@ -61,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
 ]
 
 TEMPLATES = [
