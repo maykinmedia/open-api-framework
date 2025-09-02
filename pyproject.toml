@@ -36,7 +36,6 @@ dependencies = [
     "mozilla-django-oidc-db>=0.19.0",
     "psycopg[binary]>=3.2.9",
     "python-dotenv>=1.0.0",
-    "python-decouple>=3.8",
     "requests>=2.32.3",
     "sentry-sdk>=2.11.0",
     "elastic-apm>=6.22.0",
@@ -44,6 +43,7 @@ dependencies = [
     "django-setup-configuration>=0.1.0",
     "django-sessionprofile>=3.0.0",
     "django-upgrade-check>=1.1.0",
+    "maykin-common>=0.9.0",
 ]
 
 [project.urls]
