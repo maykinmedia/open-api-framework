@@ -105,6 +105,15 @@ server = [
 redis = [
     "django-redis>=5.4.0"
 ]
+structlog = [
+    "structlog>=25.4.0",
+    "django-structlog>=9.1.1"
+]
+structlog-celery = [
+    "structlog>=25.4.0",
+    "django-structlog[celery]>=9.1.1"
+]
+
 
 [tool.setuptools.packages.find]
 include = ["open_api_framework*"]
