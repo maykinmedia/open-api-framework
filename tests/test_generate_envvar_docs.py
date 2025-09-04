@@ -1,7 +1,8 @@
-from importlib.util import find_spec
 from unittest.mock import mock_open, patch
 
 from django.core.management import call_command
+
+from open_api_framework.conf.utils import is_installed
 
 EXPECTED_OUTPUT = """\
 .. _installation_env_config:
@@ -161,7 +162,7 @@ to define the envvars. The component will pick them up out of the box.
 
 def test_generate_envvar_docs():
     mock_file = mock_open()
-    extras_installed = bool(find_spec("csp"))
+    extras_installed = is_installed("csp")
 
     with patch(
         "open_api_framework.management.commands.generate_envvar_docs.open", mock_file
