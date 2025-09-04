@@ -1,7 +1,8 @@
 from pathlib import Path
 
+from maykin_common.config import DocumentationParams, config
+
 from open_api_framework.conf.base import *  # noqa: F403
-from open_api_framework.conf.utils import config
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
 
@@ -16,31 +17,37 @@ with suppress(NameError):
 
 SECRET_KEY = config(
     "SECRET_KEY",
-    "so-secret-i-cant-believe-you-are-looking-at-this",
-    group="Required",
-    help_text=("Secret key that's used for certain cryptographic utilities."),
+    default="so-secret-i-cant-believe-you-are-looking-at-this",
+    documentation=DocumentationParams(
+        group="Required",
+        help_text=("Secret key that's used for certain cryptographic utilities."),
+    ),
 )
 DEBUG = config(
     "DEBUG",
     default=False,
-    help_text=(
-        "Only set this to ``True`` on a local development environment. "
-        "Various other security settings are derived from this setting!"
+    documentation=DocumentationParams(
+        help_text=(
+            "Only set this to ``True`` on a local development environment. "
+            "Various other security settings are derived from this setting!"
+        )
     ),
 )
 IS_HTTPS = config(
     "IS_HTTPS",
     default=not DEBUG,
-    help_text=(
-        "Used to construct absolute URLs and controls a variety of security settings. "
-        "Defaults to the inverse of ``DEBUG``."
+    documentation=DocumentationParams(
+        help_text=(
+            "Used to construct absolute URLs and controls a variety of security settings. "
+            "Defaults to the inverse of ``DEBUG``."
+        ),
+        auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 STATIC_URL = "/static/"
 LOGIN_URL = "admin:login"
 
-USE_TZ = config("USE_TZ", True, add_to_docs=False)
+USE_TZ = config("USE_TZ", default=True, documentation=no_doc)
 
 DATABASES = {
     "default": {
@@ -91,7 +98,15 @@ STORAGES = {
 }
 
 # These are excluded from generate_envvar_docs test by their group
-VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED1", "foo", group="Excluded")
-VARIABLE_TO_BE_EXCLUDED = config("VARIABLE_TO_BE_EXCLUDED2", "bar", group="Excluded")
+VARIABLE_TO_BE_EXCLUDED = config(
+    "VARIABLE_TO_BE_EXCLUDED1",
+    default="foo",
+    documentation=DocumentationParams(group="Excluded"),
+)
+VARIABLE_TO_BE_EXCLUDED = config(
+    "VARIABLE_TO_BE_EXCLUDED2",
+    default="bar",
+    documentation=DocumentationParams(group="Excluded"),
+)
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
