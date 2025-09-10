@@ -565,16 +565,12 @@ CELERY_LOGLEVEL = config(
     group="Celery",
 )
 
-USE_STRUCTLOG = config(
-    "USE_STRUCTLOG",
-    default=False,
-    help_text="Enable structlog-based logging instead of stdlib logging.",
-    group="Logging",
-)
+_USE_STRUCTLOG = config("_USE_STRUCTLOG", default=False, add_to_docs=False)
+
 # XXX: this should be renamed to `LOG_REQUESTS` in the next major release
 ENABLE_STRUCTLOG_REQUESTS = config(
     "ENABLE_STRUCTLOG_REQUESTS",
-    default=False,
+    default=True,
     help_text=("enable structured logging of requests"),
     group="Logging",
 )
@@ -582,7 +578,7 @@ ENABLE_STRUCTLOG_REQUESTS = config(
 
 LOGGING_DIR = Path(BASE_DIR) / "log"
 
-if USE_STRUCTLOG:
+if _USE_STRUCTLOG:
     import structlog
 
     INSTALLED_APPS += [
