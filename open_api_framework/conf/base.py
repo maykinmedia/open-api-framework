@@ -548,6 +548,15 @@ if LOG_QUERIES and not DEBUG:
         RuntimeWarning,
     )
 
+LOG_FORMAT_CONSOLE = config(
+    "LOG_FORMAT_CONSOLE",
+    default="json",
+    help_text=(
+        "The format for the console logging handler, possible options: ``json``, ``plain_console``."
+    ),
+    group="Logging",
+)
+
 CELERY_LOGLEVEL = config(
     "CELERY_LOGLEVEL",
     default="INFO",
@@ -556,156 +565,373 @@ CELERY_LOGLEVEL = config(
     group="Celery",
 )
 
+_USE_STRUCTLOG = config("_USE_STRUCTLOG", default=False, add_to_docs=False)
+
+# XXX: this should be renamed to `LOG_REQUESTS` in the next major release
+ENABLE_STRUCTLOG_REQUESTS = config(
+    "ENABLE_STRUCTLOG_REQUESTS",
+    default=True,
+    help_text=("enable structured logging of requests"),
+    group="Logging",
+)
+
+
 LOGGING_DIR = Path(BASE_DIR) / "log"
 
-logging_root_handlers = ["console"] if LOG_STDOUT else ["project"]
-logging_django_handlers = ["console"] if LOG_STDOUT else ["django"]
+if _USE_STRUCTLOG:
+    import structlog
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "%(asctime)s %(levelname)s %(name)s %(module)s %(process)d %(thread)d  %(message)s"
+    INSTALLED_APPS += [
+        "django_structlog",
+    ]
+
+    if ENABLE_STRUCTLOG_REQUESTS:
+        MIDDLEWARE.insert(
+            MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware")
+            + 1,
+            "django_structlog.middlewares.RequestMiddleware",
+        )
+
+    logging_root_handlers = ["console"] if LOG_STDOUT else ["json_file"]
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            # structlog - foreign_pre_chain handles logs coming from stdlib logging module,
+            # while the `structlog.configure` call handles everything coming from structlog.
+            # They are mutually exclusive.
+            "json": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processor": structlog.processors.JSONRenderer(),
+                "foreign_pre_chain": [
+                    structlog.contextvars.merge_contextvars,
+                    structlog.processors.TimeStamper(fmt="iso"),
+                    structlog.stdlib.add_logger_name,
+                    structlog.stdlib.add_log_level,
+                    structlog.stdlib.PositionalArgumentsFormatter(),
+                ],
+            },
+            "plain_console": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processor": structlog.dev.ConsoleRenderer(),
+                "foreign_pre_chain": [
+                    structlog.contextvars.merge_contextvars,
+                    structlog.processors.TimeStamper(fmt="iso"),
+                    structlog.stdlib.add_logger_name,
+                    structlog.stdlib.add_log_level,
+                    structlog.stdlib.PositionalArgumentsFormatter(),
+                ],
+            },
+            "verbose": {
+                "format": "%(asctime)s %(levelname)s %(name)s %(module)s %(process)d %(thread)d  %(message)s"
+            },
+            "timestamped": {
+                "format": "%(asctime)s %(levelname)s %(name)s  %(message)s"
+            },
+            "simple": {"format": "%(levelname)s  %(message)s"},
+            "performance": {
+                "format": "%(asctime)s %(process)d | %(thread)d | %(message)s"
+            },
+            "db": {"format": "%(asctime)s | %(message)s"},
+            "outgoing_requests": {"()": HttpFormatter},
         },
-        "timestamped": {"format": "%(asctime)s %(levelname)s %(name)s  %(message)s"},
-        "simple": {"format": "%(levelname)s  %(message)s"},
-        "performance": {"format": "%(asctime)s %(process)d | %(thread)d | %(message)s"},
-        "db": {"format": "%(asctime)s | %(message)s"},
-        "outgoing_requests": {"()": HttpFormatter},
-    },
-    "filters": {
-        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
-    },
-    "handlers": {
-        "mail_admins": {
-            "level": "ERROR",
-            "filters": ["require_debug_false"],
-            "class": "django.utils.log.AdminEmailHandler",
+        # TODO can be removed?
+        "filters": {
+            "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
         },
-        "null": {"level": "DEBUG", "class": "logging.NullHandler"},
-        "console": {
-            "level": LOG_LEVEL,
-            "class": "logging.StreamHandler",
-            "formatter": "timestamped",
+        "handlers": {
+            # TODO can be removed?
+            "mail_admins": {
+                "level": "ERROR",
+                "filters": ["require_debug_false"],
+                "class": "django.utils.log.AdminEmailHandler",
+            },
+            "null": {"level": "DEBUG", "class": "logging.NullHandler"},
+            "console": {
+                "level": LOG_LEVEL,
+                "class": "logging.StreamHandler",
+                "formatter": LOG_FORMAT_CONSOLE,
+            },
+            "console_db": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "db",
+            },
+            # replaces the "django" and "project" handlers - in containerized applications
+            # the best practices is to log to stdout (use the console handler).
+            "json_file": {
+                "level": LOG_LEVEL,  # always debug might be better?
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / "application.jsonl",
+                "formatter": "json",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "performance": {
+                "level": "INFO",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / "performance.log",
+                "formatter": "performance",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "requests": {
+                "level": "DEBUG",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / "requests.log",
+                "formatter": "timestamped",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "log_outgoing_requests": {
+                "level": "DEBUG",
+                "formatter": "outgoing_requests",
+                "class": "logging.StreamHandler",  # to write to stdout
+            },
+            "save_outgoing_requests": {
+                "level": "DEBUG",
+                # enabling saving to database
+                "class": "log_outgoing_requests.handlers.DatabaseOutgoingRequestsHandler",
+            },
         },
-        "console_db": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "db",
+        "loggers": {
+            "": {
+                "handlers": logging_root_handlers,
+                "level": "ERROR",
+                "propagate": False,
+            },
+            PROJECT_DIRNAME: {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+                "propagate": False,
+            },
+            "mozilla_django_oidc": {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+            },
+            f"{PROJECT_DIRNAME}.utils.middleware": {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+                "propagate": False,
+            },
+            "vng_api_common": {
+                "handlers": ["console"],
+                "level": LOG_LEVEL,
+                "propagate": True,
+            },
+            "django.db.backends": {
+                "handlers": ["console_db"] if LOG_QUERIES else [],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "django.request": {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+                "propagate": False,
+            },
+            # suppress django.server request logs because those are already emitted by
+            # django-structlog middleware
+            "django.server": {
+                "handlers": ["console"],
+                "level": "WARNING" if ENABLE_STRUCTLOG_REQUESTS else "INFO",
+                "propagate": False,
+            },
+            "django.template": {
+                "handlers": ["console"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "log_outgoing_requests": {
+                "handlers": (
+                    ["log_outgoing_requests", "save_outgoing_requests"]
+                    if LOG_REQUESTS
+                    else []
+                ),
+                "level": "DEBUG",
+                "propagate": True,
+            },
+            "django_structlog": {
+                "handlers": logging_root_handlers,
+                "level": "INFO",
+                "propagate": False,
+            },
         },
-        "celery_console": {
-            "level": CELERY_LOGLEVEL,
-            "class": "logging.StreamHandler",
-            "formatter": "timestamped",
+    }
+
+    structlog.configure(
+        processors=[
+            structlog.contextvars.merge_contextvars,
+            structlog.stdlib.filter_by_level,
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ],
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        cache_logger_on_first_use=True,
+    )
+
+    # Optional django-structlog settings
+    DJANGO_STRUCTLOG_IP_LOGGING_ENABLED = False
+    DJANGO_STRUCTLOG_CELERY_ENABLED = True
+else:
+    logging_root_handlers = ["console"] if LOG_STDOUT else ["project"]
+    logging_django_handlers = ["console"] if LOG_STDOUT else ["django"]
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "verbose": {
+                "format": "%(asctime)s %(levelname)s %(name)s %(module)s %(process)d %(thread)d  %(message)s"
+            },
+            "timestamped": {
+                "format": "%(asctime)s %(levelname)s %(name)s  %(message)s"
+            },
+            "simple": {"format": "%(levelname)s  %(message)s"},
+            "performance": {
+                "format": "%(asctime)s %(process)d | %(thread)d | %(message)s"
+            },
+            "db": {"format": "%(asctime)s | %(message)s"},
+            "outgoing_requests": {"()": HttpFormatter},
         },
-        "celery_file": {
-            "level": CELERY_LOGLEVEL,
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "celery.log",
-            "formatter": "verbose",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
+        "filters": {
+            "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
         },
-        "django": {
-            "level": LOG_LEVEL,
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "django.log",
-            "formatter": "verbose",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
+        "handlers": {
+            "mail_admins": {
+                "level": "ERROR",
+                "filters": ["require_debug_false"],
+                "class": "django.utils.log.AdminEmailHandler",
+            },
+            "null": {"level": "DEBUG", "class": "logging.NullHandler"},
+            "console": {
+                "level": LOG_LEVEL,
+                "class": "logging.StreamHandler",
+                "formatter": "timestamped",
+            },
+            "console_db": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "db",
+            },
+            "celery_console": {
+                "level": CELERY_LOGLEVEL,
+                "class": "logging.StreamHandler",
+                "formatter": "timestamped",
+            },
+            "celery_file": {
+                "level": CELERY_LOGLEVEL,
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / "celery.log",
+                "formatter": "verbose",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "django": {
+                "level": LOG_LEVEL,
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / "django.log",
+                "formatter": "verbose",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "project": {
+                "level": LOG_LEVEL,
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / f"{PROJECT_DIRNAME}.log",
+                "formatter": "verbose",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "performance": {
+                "level": "INFO",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / "performance.log",
+                "formatter": "performance",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "requests": {
+                "level": "DEBUG",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": Path(LOGGING_DIR) / "requests.log",
+                "formatter": "timestamped",
+                "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                "backupCount": 10,
+            },
+            "log_outgoing_requests": {
+                "level": "DEBUG",
+                "formatter": "outgoing_requests",
+                "class": "logging.StreamHandler",  # to write to stdout
+            },
+            "save_outgoing_requests": {
+                "level": "DEBUG",
+                # enabling saving to database
+                "class": "log_outgoing_requests.handlers.DatabaseOutgoingRequestsHandler",
+            },
         },
-        "project": {
-            "level": LOG_LEVEL,
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / f"{PROJECT_DIRNAME}.log",
-            "formatter": "verbose",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
+        "loggers": {
+            "": {
+                "handlers": logging_root_handlers,
+                "level": "ERROR",
+                "propagate": False,
+            },
+            PROJECT_DIRNAME: {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+                "propagate": True,
+            },
+            "mozilla_django_oidc": {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+            },
+            f"{PROJECT_DIRNAME}.utils.middleware": {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+                "propagate": False,
+            },
+            "vng_api_common": {
+                "handlers": ["console"],
+                "level": LOG_LEVEL,
+                "propagate": True,
+            },
+            "django.db.backends": {
+                "handlers": ["console_db"] if LOG_QUERIES else [],
+                "level": "DEBUG",
+                "propagate": False,
+            },
+            "django.request": {
+                "handlers": logging_django_handlers,
+                "level": LOG_LEVEL,
+                "propagate": True,
+            },
+            "django.template": {
+                "handlers": ["console"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "log_outgoing_requests": {
+                "handlers": (
+                    ["log_outgoing_requests", "save_outgoing_requests"]
+                    if LOG_REQUESTS
+                    else []
+                ),
+                "level": "DEBUG",
+                "propagate": True,
+            },
+            "celery": {
+                "handlers": ["celery_console"] if LOG_STDOUT else ["celery_file"],
+                "level": CELERY_LOGLEVEL,
+                "propagate": True,
+            },
         },
-        "performance": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "performance.log",
-            "formatter": "performance",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
-        },
-        "requests": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "requests.log",
-            "formatter": "timestamped",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
-        },
-        "log_outgoing_requests": {
-            "level": "DEBUG",
-            "formatter": "outgoing_requests",
-            "class": "logging.StreamHandler",  # to write to stdout
-        },
-        "save_outgoing_requests": {
-            "level": "DEBUG",
-            # enabling saving to database
-            "class": "log_outgoing_requests.handlers.DatabaseOutgoingRequestsHandler",
-        },
-    },
-    "loggers": {
-        "": {
-            "handlers": logging_root_handlers,
-            "level": "ERROR",
-            "propagate": False,
-        },
-        PROJECT_DIRNAME: {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
-            "propagate": True,
-        },
-        "mozilla_django_oidc": {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
-        },
-        f"{PROJECT_DIRNAME}.utils.middleware": {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
-            "propagate": False,
-        },
-        "vng_api_common": {
-            "handlers": ["console"],
-            "level": LOG_LEVEL,
-            "propagate": True,
-        },
-        "django.db.backends": {
-            "handlers": ["console_db"] if LOG_QUERIES else [],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": logging_django_handlers,
-            "level": LOG_LEVEL,
-            "propagate": True,
-        },
-        "django.template": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "log_outgoing_requests": {
-            "handlers": (
-                ["log_outgoing_requests", "save_outgoing_requests"]
-                if LOG_REQUESTS
-                else []
-            ),
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "celery": {
-            "handlers": ["celery_console"] if LOG_STDOUT else ["celery_file"],
-            "level": CELERY_LOGLEVEL,
-            "propagate": True,
-        },
-    },
-}
+    }
 
 #
 # AUTH settings - user accounts, passwords, backends...
