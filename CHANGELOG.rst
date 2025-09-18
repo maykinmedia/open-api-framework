@@ -1,6 +1,49 @@
 Changelog
 =========
 
+0.13.0 (2025-09-18)
+-------------------
+
+**New features**
+
+* [#178] Add logging envvars:
+
+    * ``LOG_FORMAT_CONSOLE``
+    * ``ENABLE_STRUCTLOG_REQUESTS``
+
+* [#178] Specify optional dependency groups:
+
+    * **structlog**: ``structlog``, ``django-structlog``
+    * **structlog-celery**: ``structlog``, ``django-structlog[celery]``
+
+* [#178] Add option to configure whether to use structlog or standard logging (default: stdlib logging). 
+  To enable structlog, downstream projects can do the following in their base settings:
+
+    .. code-block:: python
+
+        os.environ["_USE_STRUCTLOG"] = "True"
+
+        from open_api_framework.conf.base import *  # noqa
+
+**Bugfixes/QOL**
+
+* Fix casting DB_PORT "" to int
+
+**Maintenance**
+
+* Pin ```django-csp``` to 4.0 or higher.
+
+.. warning::
+   
+   The CSP environment variables function the same as with 3.8, but if any changes are made to 
+   CSP settings for downstream projects (like adding extra values to directives via the old 3.8 settings), 
+   manual action is needed to make sure it works with 4.0
+   (`see documentation <https://django-csp.readthedocs.io/en/latest/configuration.html#migrating-from-django-csp-3-8>`_)
+
+**Documentation**
+
+* [#171] Add documentation for connection pooling behaviour.
+
 0.12.0 (2025-07-15)
 -------------------
 
