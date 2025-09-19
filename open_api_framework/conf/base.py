@@ -9,10 +9,10 @@ import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
 from csp.constants import NONCE, NONE, SELF
 from log_outgoing_requests.formatters import HttpFormatter
+from maykin_common.config_helpers import config
 from notifications_api_common.settings import *  # noqa
 
 from .utils import (
-    config,
     get_django_project_dir,
     get_project_dirname,
     get_sentry_integrations,
