@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.13.1 (2025-10-03)
+-------------------
+
+**Bugfixes**
+
+* Avoid duplicate ``commonground_api_common`` logs by setting propagate to ``False`` and
+  use the correct handlers for this logger
+
 0.13.0 (2025-09-18)
 -------------------
 
@@ -16,7 +24,7 @@ Changelog
     * **structlog**: ``structlog``, ``django-structlog``
     * **structlog-celery**: ``structlog``, ``django-structlog[celery]``
 
-* [#178] Add option to configure whether to use structlog or standard logging (default: stdlib logging). 
+* [#178] Add option to configure whether to use structlog or standard logging (default: stdlib logging).
   To enable structlog, downstream projects can do the following in their base settings:
 
     .. code-block:: python
@@ -34,9 +42,9 @@ Changelog
 * Pin ```django-csp``` to 4.0 or higher.
 
 .. warning::
-   
-   The CSP environment variables function the same as with 3.8, but if any changes are made to 
-   CSP settings for downstream projects (like adding extra values to directives via the old 3.8 settings), 
+
+   The CSP environment variables function the same as with 3.8, but if any changes are made to
+   CSP settings for downstream projects (like adding extra values to directives via the old 3.8 settings),
    manual action is needed to make sure it works with 4.0
    (`see documentation <https://django-csp.readthedocs.io/en/latest/configuration.html#migrating-from-django-csp-3-8>`_)
 
