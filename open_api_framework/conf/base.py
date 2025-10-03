@@ -716,9 +716,9 @@ if _USE_STRUCTLOG:
                 "propagate": False,
             },
             "vng_api_common": {
-                "handlers": ["console"],
+                "handlers": logging_root_handlers,
                 "level": LOG_LEVEL,
-                "propagate": True,
+                "propagate": False,
             },
             "django.db.backends": {
                 "handlers": ["console_db"] if LOG_QUERIES else [],
