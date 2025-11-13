@@ -164,7 +164,12 @@ DATABASES["default"]["CONN_MAX_AGE"] = config(
 DB_POOL_ENABLED = config(
     "DB_POOL_ENABLED",
     default=False,
-    help_text=("Whether to use connection pooling."),
+    help_text=(
+        "**Experimental:** Whether to use connection pooling. "
+        "This feature is not yet recommended for production use. "
+        "See the documentation for details: "
+        "https://open-api-framework.readthedocs.io/en/latest/connection_pooling.html"
+    ),
     group="Database",
 )
 

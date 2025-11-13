@@ -30,6 +30,12 @@ If ``DB_CONN_MAX_AGE=60``, there will be a maximum of 16 connections kept open f
 Connection pooling
 ------------------
 
+.. warning::
+
+   **Experimental:** — connection pooling is *not yet recommended for production use*.
+   It may not behave as expected when running uWSGI with multiple processes or threads.
+   Use this feature cautiously and test thoroughly before deployment.
+
 ``open-api-framework`` allows for database connection pooling (through Django 5.2 and the psycopg3 library),
 which is configurable through environment variables.
 
