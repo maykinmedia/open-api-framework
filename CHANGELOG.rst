@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.13.2 (2025-11-13)
+-------------------
+
+**Documentation**
+
+* Updated the help text of ``DB_POOL_ENABLED`` to indicate that connection pooling is experimental and not recommended for production use.
+* Added a reference to the connection pooling documentation.
+
 0.13.1 (2025-10-03)
 -------------------
 
