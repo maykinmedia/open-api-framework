@@ -1,11 +1,6 @@
 from pathlib import Path
 
-from open_api_framework.conf.base import (
-    CONTENT_SECURITY_POLICY,  # noqa
-    SENTRY_CONFIG,  # noqa
-    SENTRY_DSN,  # noqa
-    get_content_security_policy,  # noqa
-)
+from open_api_framework.conf.base import *  # noqa: F403
 from open_api_framework.conf.utils import config
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
@@ -45,29 +40,12 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS = [
-    "django.contrib.contenttypes",
-    "django.contrib.auth",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.admin",
-    "open_api_framework",
-    "sessionprofile",
-    "testapp",
-    "rosetta",
-]
+INSTALLED_APPS += ["rosetta"]
+dont_work_with_sqlite = ["mozilla_django_oidc_db", "notifications_api_common"]
+for app in dont_work_with_sqlite:
+    if app in INSTALLED_APPS:
+        INSTALLED_APPS.pop(INSTALLED_APPS.index(app))
 
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "sessionprofile.middleware.SessionProfileMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
-]
 
 TEMPLATES = [
     {
