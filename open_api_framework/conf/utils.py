@@ -159,10 +159,10 @@ def get_project_dirname() -> str:
     return config("DJANGO_SETTINGS_MODULE", add_to_docs=False).split(".")[0]
 
 
-def get_django_project_dir() -> str:
+def get_django_project_dir() -> Path:
     # Get the path of the importing module
     base_dirname = get_project_dirname()
-    return Path(sys.modules[base_dirname].__file__).parent
+    return Path(sys.modules[base_dirname].__file__).parent  # pyright: ignore[reportArgumentType]
 
 
 def mute_logging(config: dict) -> None:  # pragma: no cover

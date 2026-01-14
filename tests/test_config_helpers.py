@@ -1,6 +1,12 @@
+import os
+
 import pytest
 
-from open_api_framework.conf.utils import ENVVAR_REGISTRY, config
+from open_api_framework.conf.utils import (
+    ENVVAR_REGISTRY,
+    config,
+    get_django_project_dir,
+)
 
 
 def test_empty_list_as_default():
@@ -33,3 +39,12 @@ def test_it_raises_warning_if_add_to_docs_module_is_not_present(monkeypatch):
     # warning mentions key actionable info
     assert "FOO_TEST_ENVVAR" in str(warnings[0])
     assert "foo_module" in str(warnings[0])
+
+
+def test_get_django_project_dir():
+    project_path = get_django_project_dir()
+    assert project_path.parts[-1] == "testapp"
+
+    # still compatible with os.path.join
+    settings = os.path.join(project_path, "settings.py")
+    assert os.path.exists(settings)

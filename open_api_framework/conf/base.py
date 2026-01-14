@@ -39,7 +39,7 @@ DJANGO_PROJECT_DIR = get_django_project_dir()
 BASE_DIR = Path(
     *it.takewhile(
         lambda p: p not in ["src", PROJECT_DIRNAME],  # testapp does not have src
-        Path(DJANGO_PROJECT_DIR).resolve().parts,
+        DJANGO_PROJECT_DIR.resolve().parts,
     )
 )
 
@@ -443,7 +443,7 @@ TEMPLATE_LOADERS = (
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [Path(DJANGO_PROJECT_DIR) / "templates"],
+        "DIRS": [DJANGO_PROJECT_DIR / "templates"],
         "APP_DIRS": False,  # conflicts with explicity specifying the loaders
         "OPTIONS": {
             "context_processors": [
@@ -462,7 +462,7 @@ TEMPLATES = [
 WSGI_APPLICATION = f"{PROJECT_DIRNAME}.wsgi.application"
 
 # Translations
-LOCALE_PATHS = (Path(DJANGO_PROJECT_DIR) / "conf" / "locale",)
+LOCALE_PATHS = (DJANGO_PROJECT_DIR / "conf" / "locale",)
 
 #
 # SERVING of static and media files
@@ -470,10 +470,10 @@ LOCALE_PATHS = (Path(DJANGO_PROJECT_DIR) / "conf" / "locale",)
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = Path(BASE_DIR) / "static"
+STATIC_ROOT = BASE_DIR / "static"
 
 # Additional locations of static files
-STATICFILES_DIRS = [Path(DJANGO_PROJECT_DIR) / "static"]
+STATICFILES_DIRS = [DJANGO_PROJECT_DIR / "static"]
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -482,7 +482,7 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-MEDIA_ROOT = Path(BASE_DIR) / "media"
+MEDIA_ROOT = BASE_DIR / "media"
 
 MEDIA_URL = "/media/"
 
@@ -602,7 +602,7 @@ ENABLE_STRUCTLOG_REQUESTS = config(
 )
 
 
-LOGGING_DIR = Path(BASE_DIR) / "log"
+LOGGING_DIR = BASE_DIR / "log"
 
 if _USE_STRUCTLOG:
     import structlog
@@ -689,7 +689,7 @@ if _USE_STRUCTLOG:
             "json_file": {
                 "level": LOG_LEVEL,  # always debug might be better?
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "application.jsonl",
+                "filename": LOGGING_DIR / "application.jsonl",
                 "formatter": "json",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -697,7 +697,7 @@ if _USE_STRUCTLOG:
             "performance": {
                 "level": "INFO",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "performance.log",
+                "filename": LOGGING_DIR / "performance.log",
                 "formatter": "performance",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -705,7 +705,7 @@ if _USE_STRUCTLOG:
             "requests": {
                 "level": "DEBUG",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "requests.log",
+                "filename": LOGGING_DIR / "requests.log",
                 "formatter": "timestamped",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -849,7 +849,7 @@ else:
             "django": {
                 "level": LOG_LEVEL,
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "django.log",
+                "filename": LOGGING_DIR / "django.log",
                 "formatter": "verbose",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -857,7 +857,7 @@ else:
             "project": {
                 "level": LOG_LEVEL,
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / f"{PROJECT_DIRNAME}.log",
+                "filename": LOGGING_DIR / f"{PROJECT_DIRNAME}.log",
                 "formatter": "verbose",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -865,7 +865,7 @@ else:
             "performance": {
                 "level": "INFO",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "performance.log",
+                "filename": LOGGING_DIR / "performance.log",
                 "formatter": "performance",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -873,7 +873,7 @@ else:
             "requests": {
                 "level": "DEBUG",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "requests.log",
+                "filename": LOGGING_DIR / "requests.log",
                 "formatter": "timestamped",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -899,7 +899,7 @@ else:
                 "celery_file": {
                     "level": CELERY_LOGLEVEL,
                     "class": "logging.handlers.RotatingFileHandler",
-                    "filename": Path(LOGGING_DIR) / "celery.log",
+                    "filename": LOGGING_DIR / "celery.log",
                     "formatter": "verbose",
                     "maxBytes": 1024 * 1024 * 10,  # 10 MB
                     "backupCount": 10,
@@ -1087,7 +1087,7 @@ if subpath:
 if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "", add_to_docs=False)
 # in docker (build) context, there is no .git directory
-elif (Path(BASE_DIR) / ".git").exists():
+elif (BASE_DIR / ".git").exists():
     try:
         import git
     except ImportError:
@@ -1230,7 +1230,7 @@ CSRF_TRUSTED_ORIGINS = config(
 #
 # DJANGO-PRIVATES -- safely serve files after authorization
 #
-PRIVATE_MEDIA_ROOT = Path(BASE_DIR) / "private-media"
+PRIVATE_MEDIA_ROOT = BASE_DIR / "private-media"
 PRIVATE_MEDIA_URL = "/private-media/"
 
 
