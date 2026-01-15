@@ -5,6 +5,15 @@ from open_api_framework.conf.utils import config
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
 
+# base configures logging to (their) BASE_DIR / "log"
+# relative testapp location is too different from default-project
+del LOGGING  # noqa: F821
+
+with suppress(NameError):
+    # base configures redis if package is installed
+    # CI doens't spinup a redis instance
+    del CACHES  # noqa: F821
+
 SECRET_KEY = config(
     "SECRET_KEY",
     "so-secret-i-cant-believe-you-are-looking-at-this",

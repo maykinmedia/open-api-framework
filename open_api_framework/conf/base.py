@@ -1,10 +1,8 @@
 import datetime
-import itertools as it
 import os
 import warnings
 from contextlib import suppress
 from importlib.util import find_spec
-from pathlib import Path
 
 from django.urls import reverse_lazy
 
@@ -36,12 +34,7 @@ PROJECT_DIRNAME = get_project_dirname()
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
 DJANGO_PROJECT_DIR = get_django_project_dir()
-BASE_DIR = Path(
-    *it.takewhile(
-        lambda p: p not in ["src", PROJECT_DIRNAME],  # testapp does not have src
-        DJANGO_PROJECT_DIR.resolve().parts,
-    )
-)
+BASE_DIR = DJANGO_PROJECT_DIR.resolve().parents[1]
 
 
 #
