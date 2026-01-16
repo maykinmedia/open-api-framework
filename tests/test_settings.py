@@ -1,9 +1,13 @@
+from importlib.util import find_spec
+
 from django.conf import settings
 from django.urls import reverse
 
+import pytest
 from django_webtest import WebTest
 
 
+@pytest.mark.skipif(not find_spec("sentry_sdk"), reason="No sentry installed")
 def test_sentry_settings():
     """
     test that sentry settings are initialized

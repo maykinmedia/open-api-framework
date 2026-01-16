@@ -1,3 +1,4 @@
+from importlib.util import find_spec
 from unittest.mock import mock_open, patch
 
 from django.core.management import call_command
@@ -160,6 +161,8 @@ to define the envvars. The component will pick them up out of the box.
 
 def test_generate_envvar_docs():
     mock_file = mock_open()
+    extras_installed = bool(find_spec("csp"))
+
     with patch(
         "open_api_framework.management.commands.generate_envvar_docs.open", mock_file
     ):
@@ -174,4 +177,8 @@ def test_generate_envvar_docs():
         # Check the entire content written to the mock file
         written_content = "".join(call.args[0] for call in handle.write.call_args_list)
 
-        assert written_content == EXPECTED_OUTPUT
+        if extras_installed:
+            assert written_content == EXPECTED_OUTPUT
+        else:
+            assert "Cross-Origin-Resource-Sharing" not in written_content
+            assert "Content Security Policy" not in written_content

@@ -1,30 +1,40 @@
 import datetime
 import os
 import warnings
-from pathlib import Path
+from contextlib import suppress
+from importlib.util import find_spec
 
 from django.urls import reverse_lazy
 
 import sentry_sdk
-from corsheaders.defaults import default_headers as default_cors_headers
-from csp.constants import NONCE, NONE, SELF
 from log_outgoing_requests.formatters import HttpFormatter
-from notifications_api_common.settings import *  # noqa
 
 from .utils import (
     config,
     get_django_project_dir,
     get_project_dirname,
     get_sentry_integrations,
+    importable,
     strip_protocol_from_origin,
 )
+
+# optional requirements
+default_cors_headers = []
+with suppress(ImportError):
+    from corsheaders.defaults import default_headers as default_cors_headers
+
+csp_installed = False
+with suppress(ImportError):
+    from csp.constants import NONCE, NONE, SELF
+
+    csp_installed = True
 
 PROJECT_DIRNAME = get_project_dirname()
 
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
 DJANGO_PROJECT_DIR = get_django_project_dir()
-BASE_DIR = Path(DJANGO_PROJECT_DIR).resolve().parents[1]
+BASE_DIR = DJANGO_PROJECT_DIR.resolve().parents[1]
 
 
 #
@@ -307,53 +317,55 @@ if DB_POOL_ENABLED:
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-CACHE_DEFAULT = config(
-    "CACHE_DEFAULT",
-    "localhost:6379/0",
-    help_text="redis cache address for the default cache (this **MUST** be set when using Docker)",
-    group="Required",
-)
-CACHE_AXES = config(
-    "CACHE_AXES",
-    "localhost:6379/0",
-    help_text=(
-        "redis cache address for the brute force login protection cache "
-        "(this **MUST** be set when using Docker)"
-    ),
-    group="Required",
-)
+if find_spec("django_redis"):
+    CACHE_DEFAULT = config(
+        "CACHE_DEFAULT",
+        "localhost:6379/0",
+        help_text="redis cache address for the default cache (this **MUST** be set when using Docker)",
+        group="Required",
+    )
+    CACHE_AXES = config(
+        "CACHE_AXES",
+        "localhost:6379/0",
+        help_text=(
+            "redis cache address for the brute force login protection cache "
+            "(this **MUST** be set when using Docker)"
+        ),
+        group="Required",
+    )
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{CACHE_DEFAULT}",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "IGNORE_EXCEPTIONS": True,
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": f"redis://{CACHE_DEFAULT}",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,
+            },
         },
-    },
-    "axes": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{CACHE_AXES}",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "IGNORE_EXCEPTIONS": True,
+        "axes": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": f"redis://{CACHE_AXES}",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,
+            },
         },
-    },
-    "oidc": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{CACHE_DEFAULT}",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "IGNORE_EXCEPTIONS": True,
+        "oidc": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": f"redis://{CACHE_DEFAULT}",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,
+            },
         },
-    },
-}
+    }
+
 
 #
 # APPLICATIONS enabled for this project
 #
-INSTALLED_APPS = [
+INSTALLED_APPS = importable(
     # Note: contenttypes should be first, see Django ticket #10827
     "django.contrib.contenttypes",
     "django.contrib.auth",
@@ -396,9 +408,9 @@ INSTALLED_APPS = [
     PROJECT_DIRNAME,
     # Django libraries
     "upgrade_check",
-]
+)
 
-MIDDLEWARE = [
+MIDDLEWARE = importable(
     "django.middleware.security.SecurityMiddleware",
     "sessionprofile.middleware.SessionProfileMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -411,7 +423,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
     "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
-]
+)
 
 ROOT_URLCONF = f"{PROJECT_DIRNAME}.urls"
 
@@ -424,7 +436,7 @@ TEMPLATE_LOADERS = (
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [Path(DJANGO_PROJECT_DIR) / "templates"],
+        "DIRS": [DJANGO_PROJECT_DIR / "templates"],
         "APP_DIRS": False,  # conflicts with explicity specifying the loaders
         "OPTIONS": {
             "context_processors": [
@@ -443,7 +455,7 @@ TEMPLATES = [
 WSGI_APPLICATION = f"{PROJECT_DIRNAME}.wsgi.application"
 
 # Translations
-LOCALE_PATHS = (Path(DJANGO_PROJECT_DIR) / "conf" / "locale",)
+LOCALE_PATHS = (DJANGO_PROJECT_DIR / "conf" / "locale",)
 
 #
 # SERVING of static and media files
@@ -451,10 +463,10 @@ LOCALE_PATHS = (Path(DJANGO_PROJECT_DIR) / "conf" / "locale",)
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = Path(BASE_DIR) / "static"
+STATIC_ROOT = BASE_DIR / "static"
 
 # Additional locations of static files
-STATICFILES_DIRS = [Path(DJANGO_PROJECT_DIR) / "static"]
+STATICFILES_DIRS = [DJANGO_PROJECT_DIR / "static"]
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -463,7 +475,7 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-MEDIA_ROOT = Path(BASE_DIR) / "media"
+MEDIA_ROOT = BASE_DIR / "media"
 
 MEDIA_URL = "/media/"
 
@@ -568,6 +580,7 @@ CELERY_LOGLEVEL = config(
     help_text="control the verbosity of logging output for celery, independent of ``LOG_LEVEL``."
     " Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``",
     group="Celery",
+    add_to_docs="celery",
 )
 
 _USE_STRUCTLOG = config("_USE_STRUCTLOG", default=False, add_to_docs=False)
@@ -578,10 +591,11 @@ ENABLE_STRUCTLOG_REQUESTS = config(
     default=True,
     help_text=("enable structured logging of requests"),
     group="Logging",
+    add_to_docs="django_structlog",
 )
 
 
-LOGGING_DIR = Path(BASE_DIR) / "log"
+LOGGING_DIR = BASE_DIR / "log"
 
 if _USE_STRUCTLOG:
     import structlog
@@ -668,7 +682,7 @@ if _USE_STRUCTLOG:
             "json_file": {
                 "level": LOG_LEVEL,  # always debug might be better?
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "application.jsonl",
+                "filename": LOGGING_DIR / "application.jsonl",
                 "formatter": "json",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -676,7 +690,7 @@ if _USE_STRUCTLOG:
             "performance": {
                 "level": "INFO",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "performance.log",
+                "filename": LOGGING_DIR / "performance.log",
                 "formatter": "performance",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -684,7 +698,7 @@ if _USE_STRUCTLOG:
             "requests": {
                 "level": "DEBUG",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "requests.log",
+                "filename": LOGGING_DIR / "requests.log",
                 "formatter": "timestamped",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -825,23 +839,10 @@ else:
                 "class": "logging.StreamHandler",
                 "formatter": "db",
             },
-            "celery_console": {
-                "level": CELERY_LOGLEVEL,
-                "class": "logging.StreamHandler",
-                "formatter": "timestamped",
-            },
-            "celery_file": {
-                "level": CELERY_LOGLEVEL,
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "celery.log",
-                "formatter": "verbose",
-                "maxBytes": 1024 * 1024 * 10,  # 10 MB
-                "backupCount": 10,
-            },
             "django": {
                 "level": LOG_LEVEL,
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "django.log",
+                "filename": LOGGING_DIR / "django.log",
                 "formatter": "verbose",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -849,7 +850,7 @@ else:
             "project": {
                 "level": LOG_LEVEL,
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / f"{PROJECT_DIRNAME}.log",
+                "filename": LOGGING_DIR / f"{PROJECT_DIRNAME}.log",
                 "formatter": "verbose",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -857,7 +858,7 @@ else:
             "performance": {
                 "level": "INFO",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "performance.log",
+                "filename": LOGGING_DIR / "performance.log",
                 "formatter": "performance",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -865,7 +866,7 @@ else:
             "requests": {
                 "level": "DEBUG",
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": Path(LOGGING_DIR) / "requests.log",
+                "filename": LOGGING_DIR / "requests.log",
                 "formatter": "timestamped",
                 "maxBytes": 1024 * 1024 * 10,  # 10 MB
                 "backupCount": 10,
@@ -880,7 +881,26 @@ else:
                 # enabling saving to database
                 "class": "log_outgoing_requests.handlers.DatabaseOutgoingRequestsHandler",
             },
-        },
+        }
+        | (  # celery dependant handlers
+            {
+                "celery_console": {
+                    "level": CELERY_LOGLEVEL,
+                    "class": "logging.StreamHandler",
+                    "formatter": "timestamped",
+                },
+                "celery_file": {
+                    "level": CELERY_LOGLEVEL,
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "filename": LOGGING_DIR / "celery.log",
+                    "formatter": "verbose",
+                    "maxBytes": 1024 * 1024 * 10,  # 10 MB
+                    "backupCount": 10,
+                },
+            }
+            if find_spec("celery")
+            else {}
+        ),
         "loggers": {
             "": {
                 "handlers": logging_root_handlers,
@@ -930,18 +950,25 @@ else:
                 "level": "DEBUG",
                 "propagate": True,
             },
-            "celery": {
-                "handlers": ["celery_console"] if LOG_STDOUT else ["celery_file"],
-                "level": CELERY_LOGLEVEL,
-                "propagate": True,
-            },
-        },
+        }
+        | (
+            {
+                "celery": {
+                    "handlers": ["celery_console"] if LOG_STDOUT else ["celery_file"],
+                    "level": CELERY_LOGLEVEL,
+                    "propagate": True,
+                },
+            }
+            if find_spec("celery")
+            else {}
+        ),
     }
 
 #
 # AUTH settings - user accounts, passwords, backends...
 #
-AUTH_USER_MODEL = "accounts.User"
+if find_spec(f"{PROJECT_DIRNAME}.accounts"):
+    AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -1053,7 +1080,7 @@ if subpath:
 if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "", add_to_docs=False)
 # in docker (build) context, there is no .git directory
-elif (Path(BASE_DIR) / ".git").exists():
+elif (BASE_DIR / ".git").exists():
     try:
         import git
     except ImportError:
@@ -1133,6 +1160,7 @@ CORS_ALLOW_ALL_ORIGINS = config(
     default=False,
     group="Cross-Origin-Resource-Sharing",
     help_text="allow cross-domain access from any client",
+    add_to_docs="corsheaders",
 )
 CORS_ALLOWED_ORIGINS = config(
     "CORS_ALLOWED_ORIGINS",
@@ -1143,6 +1171,7 @@ CORS_ALLOWED_ORIGINS = config(
         "explicitly list the allowed origins for cross-domain requests. "
         "Example: http://localhost:3000,https://some-app.gemeente.nl"
     ),
+    add_to_docs="corsheaders",
 )
 CORS_ALLOWED_ORIGIN_REGEXES = config(
     "CORS_ALLOWED_ORIGIN_REGEXES",
@@ -1150,7 +1179,9 @@ CORS_ALLOWED_ORIGIN_REGEXES = config(
     default=[],
     group="Cross-Origin-Resource-Sharing",
     help_text="same as ``CORS_ALLOWED_ORIGINS``, but supports regular expressions",
+    add_to_docs="corsheaders",
 )
+
 # Authorization is included in default_cors_headers
 CORS_ALLOW_HEADERS = (
     list(default_cors_headers)
@@ -1168,8 +1199,10 @@ CORS_ALLOW_HEADERS = (
             "By default, Authorization, Accept-Crs and Content-Crs are already included. "
             "The value of this variable is added to these already included headers."
         ),
+        add_to_docs="corsheaders",
     )
 )
+
 CORS_EXPOSE_HEADERS = [
     "content-crs",
 ]
@@ -1190,7 +1223,7 @@ CSRF_TRUSTED_ORIGINS = config(
 #
 # DJANGO-PRIVATES -- safely serve files after authorization
 #
-PRIVATE_MEDIA_ROOT = Path(BASE_DIR) / "private-media"
+PRIVATE_MEDIA_ROOT = BASE_DIR / "private-media"
 PRIVATE_MEDIA_URL = "/private-media/"
 
 
@@ -1392,54 +1425,72 @@ LOG_OUTGOING_REQUESTS_MAX_AGE = config(
 
 def get_content_security_policy():
     # ideally we'd use BASE_URI but it'd have to be lazy or cause issues
-    csp_default_src = [SELF] + config(
+    extra_default_src = config(
         "CSP_EXTRA_DEFAULT_SRC",
         default=[],
         split=True,
         group="Content Security Policy",
         help_text="Extra default source URLs for CSP other than ``self``. Used for ``img-src``, ``style-src`` and ``script-src``.",
+        add_to_docs="csp",
     )
+    extra_form_action = config(
+        "CSP_EXTRA_FORM_ACTION",
+        default=[],
+        split=True,
+        group="Content Security Policy",
+        help_text="Additional `form-action` sources.",
+        add_to_docs="csp",
+    )
+    form_action = config(
+        "CSP_FORM_ACTION",
+        default=["\"'self'\""] + extra_form_action,
+        split=True,
+        group="Content Security Policy",
+        help_text="Override the default `form-action` sources.",
+        add_to_docs="csp",
+    )
+    extra_img_src = config(
+        "CSP_EXTRA_IMG_SRC",
+        default=[],
+        split=True,
+        group="Content Security Policy",
+        help_text="Extra `img-src` sources.",
+        add_to_docs="csp",
+    )
+    object_src = config(
+        "CSP_OBJECT_SRC",
+        default=["\"'none'\""],
+        split=True,
+        group="Content Security Policy",
+        help_text="`object-src` sources.",
+        add_to_docs="csp",
+    )
+    report_uri = config(
+        "CSP_REPORT_URI",
+        None,
+        group="Content Security Policy",
+        help_text="URI for CSP report-uri directive.",
+        add_to_docs="csp",
+    )
+    report_percentage = config(
+        "CSP_REPORT_PERCENTAGE",
+        0.0,
+        group="Content Security Policy",
+        help_text="Fraction (between 0 and 1) of requests to include report-uri directive.",
+        add_to_docs="csp",
+    )
+
+    if not csp_installed:
+        return {}
+
+    csp_default_src = [SELF] + extra_default_src
     return {
         "DIRECTIVES": {
-            "default-src": [SELF]
-            + config(
-                "CSP_EXTRA_DEFAULT_SRC",
-                default=[],
-                split=True,
-                group="Content Security Policy",
-                help_text="Extra default source URLs for CSP other than ``self``. Used for ``img-src``, ``style-src`` and ``script-src``.",
-            ),
-            "form-action": config(
-                "CSP_FORM_ACTION",
-                default=["\"'self'\""]
-                + config(
-                    "CSP_EXTRA_FORM_ACTION",
-                    default=[],
-                    split=True,
-                    group="Content Security Policy",
-                    help_text="Additional `form-action` sources.",
-                ),
-                split=True,
-                group="Content Security Policy",
-                help_text="Override the default `form-action` sources.",
-            )
-            + CORS_ALLOWED_ORIGINS,
-            "img-src": csp_default_src
-            + ["data:", "cdn.redoc.ly"]
-            + config(
-                "CSP_EXTRA_IMG_SRC",
-                default=[],
-                split=True,
-                group="Content Security Policy",
-                help_text="Extra `img-src` sources.",
-            ),
-            "object-src": config(
-                "CSP_OBJECT_SRC",
-                default=["\"'none'\""],
-                split=True,
-                group="Content Security Policy",
-                help_text="`object-src` sources.",
-            ),
+            "default-src": csp_default_src,
+            "form-action": form_action
+            + CORS_ALLOWED_ORIGINS,  # XXX: not passed as default to prevent misconfig??
+            "img-src": csp_default_src + ["data:", "cdn.redoc.ly"] + extra_img_src,
+            "object-src": object_src,
             "style-src": csp_default_src
             + [NONCE, "'unsafe-inline'", "fonts.googleapis.com"],
             "script-src": csp_default_src + [NONCE, "'unsafe-inline'"],
@@ -1449,22 +1500,11 @@ def get_content_security_policy():
             "frame-ancestors": [NONE],
             "frame-src": [SELF],
             "upgrade-insecure-requests": False,  # Enable only in production
-            "report-uri": config(
-                "CSP_REPORT_URI",
-                None,
-                group="Content Security Policy",
-                help_text="URI for CSP report-uri directive.",
-            ),
+            "report-uri": report_uri,
         },
         # Envvar used for django-csp==3.8 was a float between 0 and 1, while django-csp==4.0
         # expects a percentage (between 0 and 100)
-        "REPORT_PERCENTAGE": config(
-            "CSP_REPORT_PERCENTAGE",
-            0.0,
-            group="Content Security Policy",
-            help_text="Fraction (between 0 and 1) of requests to include report-uri directive.",
-        )
-        * 100,
+        "REPORT_PERCENTAGE": report_percentage * 100,
     }
 
 

@@ -1,4 +1,11 @@
+from importlib.util import find_spec
+
+import pytest
+
 import testapp.settings
+
+if not find_spec("csp"):
+    pytest.skip("no csp installed", allow_module_level=True)
 
 
 def test_csp_default(client):
