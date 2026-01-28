@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.13.3 (2026-01-28)
+-------------------
+
+**Bugfixes**
+
+* [#196] Fix errors raised when using ``open-api-framework`` without optional dependencies
+
+**Project maintenance**
+
+* Remove Django 4.2 from CI (pyproject.toml enforces >=5.2)
+
 0.13.2 (2025-11-13)
 -------------------
 

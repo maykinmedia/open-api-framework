@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open-api-framework"
-version = "0.13.2"
+version = "0.13.3"
 description = "A metapackage for registration components, that bundles the dependencies shared between these components and provides generic settings"
 authors = [
     {name = "Maykin Media", email = "support@maykinmedia.nl"}
@@ -129,7 +129,7 @@ env = [
 ]
 
 [tool.bumpversion]
-current_version = "0.13.2"
+current_version = "0.13.3"
 files = [
     {filename = "pyproject.toml"},
     {filename = "README.rst"},
