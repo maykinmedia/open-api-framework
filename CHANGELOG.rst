@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.13.4 (2026-02-02)
+-------------------
+
+**Bugfixes**
+
+* [#201] Fix warnings and errors when trying to load envvars from non-installed optional libraries
+* [#201] Properly handle envvars without defaults for optional extras
+
+
 0.13.3 (2026-01-28)
 -------------------
 
