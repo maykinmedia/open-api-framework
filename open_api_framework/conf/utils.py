@@ -1,4 +1,5 @@
 import logging  # noqa: TID251
+import os
 import sys
 from dataclasses import dataclass
 from importlib.util import find_spec
@@ -93,17 +94,18 @@ def config(
     if default is not undefined and default is not None:
         kwargs.setdefault("cast", type(default))
 
-    value = _config(option, default=default, *args, **kwargs)
-
     match add_to_docs:
         case str(module) if find_spec(module):
             document()
         case str(module):
-            if value is not default:
+            # not installed
+            if option in os.environ:
                 warn(
                     f"{variable.name} found, but required {add_to_docs} is not installed",
                     RuntimeWarning,
                 )
+            if default is undefined:
+                return default  # don't call _config it will require variable.name!
         case True:
             document()
         case False:
@@ -111,7 +113,7 @@ def config(
         case _:
             assert_never(add_to_docs)
 
-    return value  # type: ignore
+    return _config(option, default=default, *args, **kwargs)  # type: ignore
 
 
 def importable(*items: str) -> list[str]:
