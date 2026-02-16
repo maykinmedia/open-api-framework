@@ -63,6 +63,12 @@ tests = [
     "django-rosetta",
     "django-webtest"
 ]
+type-checking = [
+    "decouple-types",
+    "django-stubs",
+    "django-stubs-ext",
+    "gitpython",
+]
 coverage = [
     "pytest-cov",
 ]
@@ -146,3 +152,6 @@ exclude_also = [
     "\\.\\.\\.",
     "pass",
 ]
+
+[tool.setuptools.package-data]
+open_api_framework = ["py.typed"]
