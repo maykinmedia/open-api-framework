@@ -2,8 +2,8 @@ from django.conf import settings
 from django.http.request import HttpRequest
 
 
-def admin_settings(request: HttpRequest) -> dict:
-    show_version = request.user.is_staff
+def admin_settings(request: HttpRequest) -> dict[str, str | bool | None]:
+    show_version = request.user.is_staff  # pyright: ignore
 
     return {
         "show_environment": getattr(settings, "ENVIRONMENT_SHOWN_IN_ADMIN", None),

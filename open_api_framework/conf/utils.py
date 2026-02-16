@@ -31,7 +31,7 @@ class EnvironmentVariable:
         return isinstance(other, EnvironmentVariable) and self.name == other.name
 
 
-ENVVAR_REGISTRY = []
+ENVVAR_REGISTRY: list[EnvironmentVariable] = []
 
 _T = TypeVar("_T")
 
@@ -39,10 +39,10 @@ _T = TypeVar("_T")
 def config(
     option: str,
     default: _T = undefined,
-    help_text="",
-    group=None,
+    help_text: str = "",
+    group: str | None = None,
     add_to_docs: str | bool = True,
-    auto_display_default=True,
+    auto_display_default: bool = True,
     *args,
     **kwargs,
 ) -> _T:
@@ -158,7 +158,7 @@ def strip_protocol_from_origin(origin: str) -> str:
 
 
 def get_project_dirname() -> str:
-    return config("DJANGO_SETTINGS_MODULE", add_to_docs=False).split(".")[0]
+    return config("DJANGO_SETTINGS_MODULE", add_to_docs=False).split(".")[0]  # pyright: ignore
 
 
 def get_django_project_dir() -> Path:

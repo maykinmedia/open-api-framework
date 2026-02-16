@@ -87,7 +87,7 @@ def test_cant_delete_other_users_session(client, admin_user, django_user_model):
 
     SessionStore = get_session_store()
 
-    assert SessionStore().exists(other_user_session.session_key)
+    assert SessionStore().exists(other_user_session.session_key)  # pyright: ignore
 
 
 def test_delete_with_session_db_backend(client, admin_user, session_changelist_url):

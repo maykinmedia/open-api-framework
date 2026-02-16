@@ -40,3 +40,23 @@ jobs:
           python-version: '3.12'
       - name: Check environment variables
         run: python bin/check_envvar_usage.py
+
+  type-checking:
+    name: Type checking (Pyright)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install additional dependencies
+        run: |
+          pip install uv
+          uv pip install \
+            --system \
+            -e .[type-checking,tests,cors,csp,structlog]
+      - uses: jakebailey/pyright-action@v1
+        with:
+          version: 1.1.407
+          project: pyright.pyproject.toml

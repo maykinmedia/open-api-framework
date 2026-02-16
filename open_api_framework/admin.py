@@ -25,14 +25,14 @@ class SessionProfileAdmin(admin.ModelAdmin):
 
     @admin.display(boolean=True)
     def exists(self, obj):
-        return self.SessionStore().exists(obj.session_key)
+        return self.SessionStore().exists(obj.session_key)  # pyright: ignore
 
     def delete_model(self, request, obj):
-        self.SessionStore(obj.session_key).flush()
+        self.SessionStore(obj.session_key).flush()  # pyright: ignore
         super().delete_model(request, obj)
 
     def delete_queryset(self, request, queryset):
         for session_profile in queryset.iterator():
-            self.SessionStore(session_profile.session_key).flush()
+            self.SessionStore(session_profile.session_key).flush()  # pyright: ignore
 
         super().delete_queryset(request, queryset)
