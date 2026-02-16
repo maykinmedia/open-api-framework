@@ -3,6 +3,7 @@ import os
 import warnings
 from contextlib import suppress
 from importlib.util import find_spec
+from typing import TYPE_CHECKING, Any
 
 from django.urls import reverse_lazy
 
@@ -17,6 +18,10 @@ from .utils import (
     importable,
     strip_protocol_from_origin,
 )
+
+if TYPE_CHECKING:
+    from psycopg import Connection
+    from psycopg.rows import TupleRow
 
 # optional requirements
 default_cors_headers = []
@@ -293,8 +298,8 @@ if DB_POOL_ENABLED:
         def connect(
             cls,
             conninfo: str = "",
-            **kwargs,
-        ) -> "psycopg.Connection[psycopg.rows.TupleRow]":
+            **kwargs: Any,
+        ) -> Connection[TupleRow]:
             return psycopg.connect(conninfo, **kwargs)
 
     DATABASES["default"]["OPTIONS"] = {
@@ -365,7 +370,7 @@ if find_spec("django_redis"):
 #
 # APPLICATIONS enabled for this project
 #
-INSTALLED_APPS = importable(
+INSTALLED_APPS: list[str] = importable(
     # Note: contenttypes should be first, see Django ticket #10827
     "django.contrib.contenttypes",
     "django.contrib.auth",
@@ -1423,7 +1428,7 @@ LOG_OUTGOING_REQUESTS_MAX_AGE = config(
 # NOTE: make sure values are a tuple or list, and to quote special values like 'self'
 
 
-def get_content_security_policy():
+def get_content_security_policy() -> dict[str, dict[str, list[str] | int]]:
     # ideally we'd use BASE_URI but it'd have to be lazy or cause issues
     extra_default_src = config(
         "CSP_EXTRA_DEFAULT_SRC",
@@ -1483,7 +1488,7 @@ def get_content_security_policy():
     if not csp_installed:
         return {}
 
-    csp_default_src = [SELF] + extra_default_src
+    csp_default_src = [SELF] + extra_default_src  # pyright: ignore
     return {
         "DIRECTIVES": {
             "default-src": csp_default_src,
@@ -1492,13 +1497,13 @@ def get_content_security_policy():
             "img-src": csp_default_src + ["data:", "cdn.redoc.ly"] + extra_img_src,
             "object-src": object_src,
             "style-src": csp_default_src
-            + [NONCE, "'unsafe-inline'", "fonts.googleapis.com"],
-            "script-src": csp_default_src + [NONCE, "'unsafe-inline'"],
-            "font-src": [SELF, "fonts.gstatic.com"],
-            "worker-src": [SELF, "blob:"],
-            "base-uri": [SELF],
-            "frame-ancestors": [NONE],
-            "frame-src": [SELF],
+            + [NONCE, "'unsafe-inline'", "fonts.googleapis.com"],  # pyright: ignore
+            "script-src": csp_default_src + [NONCE, "'unsafe-inline'"],  # pyright: ignore
+            "font-src": [SELF, "fonts.gstatic.com"],  # pyright: ignore
+            "worker-src": [SELF, "blob:"],  # pyright: ignore
+            "base-uri": [SELF],  # pyright: ignore
+            "frame-ancestors": [NONE],  # pyright: ignore
+            "frame-src": [SELF],  # pyright: ignore
             "upgrade-insecure-requests": False,  # Enable only in production
             "report-uri": report_uri,
         },
