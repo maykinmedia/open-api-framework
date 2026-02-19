@@ -64,6 +64,7 @@ tests = [
     "django-webtest"
 ]
 type-checking = [
+    "pyright",
     "decouple-types",
     "django-stubs",
     "django-stubs-ext",
