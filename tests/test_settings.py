@@ -1,4 +1,6 @@
+import importlib
 from importlib.util import find_spec
+from unittest import TestCase
 
 from django.conf import settings
 from django.urls import reverse
@@ -26,3 +28,13 @@ class RosettaTests(WebTest):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.location, expected_login_url)
+
+
+class TestLoggingConfiguration(TestCase):
+    def test_notifications_api_common_logger_is_configured(self):
+        module = importlib.import_module("open_api_framework.conf.base")
+
+        self.assertIn(
+            "notifications_api_common",
+            module.LOGGING["loggers"],
+        )
