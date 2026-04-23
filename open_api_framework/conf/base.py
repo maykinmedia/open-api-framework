@@ -744,6 +744,11 @@ if _USE_STRUCTLOG:
                 "level": LOG_LEVEL,
                 "propagate": False,
             },
+            "notifications_api_common": {
+                "handlers": logging_root_handlers,
+                "level": LOG_LEVEL,
+                "propagate": False,
+            },
             "django.db.backends": {
                 "handlers": ["console_db"] if LOG_QUERIES else [],
                 "level": "DEBUG",
@@ -927,6 +932,11 @@ else:
                 "propagate": False,
             },
             "vng_api_common": {
+                "handlers": ["console"],
+                "level": LOG_LEVEL,
+                "propagate": True,
+            },
+            "notifications_api_common": {
                 "handlers": ["console"],
                 "level": LOG_LEVEL,
                 "propagate": True,
