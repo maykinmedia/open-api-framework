@@ -2,20 +2,20 @@ import datetime
 import os
 import warnings
 from contextlib import suppress
-from importlib.util import find_spec
 from typing import TYPE_CHECKING, Any
 
 from django.urls import reverse_lazy
 
 import sentry_sdk
 from log_outgoing_requests.formatters import HttpFormatter
+from maykin_common.config import config
 
 from .utils import (
-    config,
     get_django_project_dir,
     get_project_dirname,
     get_sentry_integrations,
     importable,
+    is_installed,
     strip_protocol_from_origin,
 )
 
@@ -122,25 +122,25 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": config(
             "DB_NAME",
-            PROJECT_DIRNAME,
+            default=PROJECT_DIRNAME,
             group="Database",
             help_text="name of the PostgreSQL database.",
         ),
         "USER": config(
             "DB_USER",
-            PROJECT_DIRNAME,
+            default=PROJECT_DIRNAME,
             group="Database",
             help_text="username of the database user.",
         ),
         "PASSWORD": config(
             "DB_PASSWORD",
-            PROJECT_DIRNAME,
+            default=PROJECT_DIRNAME,
             group="Database",
             help_text="password of the database user.",
         ),
         "HOST": config(
             "DB_HOST",
-            "localhost",
+            default="localhost",
             group="Database",
             help_text=(
                 "hostname of the PostgreSQL database. Defaults to ``db`` for the docker environment, "
@@ -150,7 +150,7 @@ DATABASES = {
         ),
         "PORT": config(
             "DB_PORT",
-            5432,
+            default="5432",
             group="Database",
             help_text="port number of the database",
             cast=lambda s: s and int(s),
@@ -160,7 +160,7 @@ DATABASES = {
 
 DATABASES["default"]["CONN_MAX_AGE"] = config(
     "DB_CONN_MAX_AGE",
-    default=0,
+    default="0",
     # The default is set to `60` in the docker settings, so that's what is mentioned
     # in the help text as well
     help_text=(
@@ -190,7 +190,7 @@ DB_POOL_ENABLED = config(
 
 DB_POOL_MIN_SIZE = config(
     "DB_POOL_MIN_SIZE",
-    default=4,
+    default="4",
     help_text=(
         "The minimum number of connection the pool will hold. "
         "The pool will actively try to create new connections if some are lost (closed, broken) "
@@ -202,7 +202,7 @@ DB_POOL_MIN_SIZE = config(
 
 DB_POOL_MAX_SIZE = config(
     "DB_POOL_MAX_SIZE",
-    default=None,
+    default="None",
     help_text=(
         "The maximum number of connections the pool will hold. "
         "If None, or equal to min_size, the pool will not grow or shrink. "
@@ -211,12 +211,12 @@ DB_POOL_MAX_SIZE = config(
         "have been unused for more than max_idle seconds."
     ),
     group="Database",
-    cast=lambda x: int(x) if x is not None else None,
+    cast=lambda x: int(x) if x != "None" else None,
 )
 
 DB_POOL_TIMEOUT = config(
     "DB_POOL_TIMEOUT",
-    default=30,
+    default="30",
     help_text=(
         "The default maximum time in seconds that a client can wait "
         "to receive a connection from the pool (using connection() or getconn()). "
@@ -228,7 +228,7 @@ DB_POOL_TIMEOUT = config(
 
 DB_POOL_MAX_WAITING = config(
     "DB_POOL_MAX_WAITING",
-    default=0,
+    default="0",
     help_text=(
         "Maximum number of requests that can be queued to the pool, "
         "after which new requests will fail, raising TooManyRequests. 0 means no queue limit."
@@ -239,7 +239,7 @@ DB_POOL_MAX_WAITING = config(
 
 DB_POOL_MAX_LIFETIME = config(
     "DB_POOL_MAX_LIFETIME",
-    default=60 * 60,
+    default="3600",
     help_text=(
         "The maximum lifetime of a connection in the pool, in seconds. "
         "Connections used for longer get closed and replaced by a new one. "
@@ -251,7 +251,7 @@ DB_POOL_MAX_LIFETIME = config(
 
 DB_POOL_MAX_IDLE = config(
     "DB_POOL_MAX_IDLE",
-    default=10 * 60,
+    default="600",
     help_text=(
         "Maximum time, in seconds, that a connection can stay unused in the pool "
         "before being closed, and the pool shrunk. This only happens to "
@@ -263,7 +263,7 @@ DB_POOL_MAX_IDLE = config(
 
 DB_POOL_RECONNECT_TIMEOUT = config(
     "DB_POOL_RECONNECT_TIMEOUT",
-    default=5 * 60,
+    default="300",
     help_text=(
         "Maximum time, in seconds, the pool will try to create a connection. "
         "If a connection attempt fails, the pool will try to reconnect a few times, "
@@ -277,7 +277,7 @@ DB_POOL_RECONNECT_TIMEOUT = config(
 
 DB_POOL_NUM_WORKERS = config(
     "DB_POOL_NUM_WORKERS",
-    default=3,
+    default="3",
     help_text=(
         "Number of background worker threads used to maintain the pool state. "
         "Background workers are used for example to create new connections and "
@@ -322,16 +322,16 @@ if DB_POOL_ENABLED:
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-if find_spec("django_redis"):
+if is_installed("django_redis"):
     CACHE_DEFAULT = config(
         "CACHE_DEFAULT",
-        "localhost:6379/0",
+        default="localhost:6379/0",
         help_text="redis cache address for the default cache (this **MUST** be set when using Docker)",
         group="Required",
     )
     CACHE_AXES = config(
         "CACHE_AXES",
-        "localhost:6379/0",
+        default="localhost:6379/0",
         help_text=(
             "redis cache address for the brute force login protection cache "
             "(this **MUST** be set when using Docker)"
@@ -523,7 +523,7 @@ EMAIL_TIMEOUT = 10
 
 DEFAULT_FROM_EMAIL = config(
     "DEFAULT_FROM_EMAIL",
-    f"{PROJECT_DIRNAME}@example.com",
+    default=f"{PROJECT_DIRNAME}@example.com",
     help_text="The default email address from which emails are sent",
 )
 
@@ -585,7 +585,7 @@ CELERY_LOGLEVEL = config(
     help_text="control the verbosity of logging output for celery, independent of ``LOG_LEVEL``."
     " Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``",
     group="Celery",
-    add_to_docs="celery",
+    add_to_docs=is_installed("celery"),
 )
 
 _USE_STRUCTLOG = config("_USE_STRUCTLOG", default=False, add_to_docs=False)
@@ -596,7 +596,7 @@ ENABLE_STRUCTLOG_REQUESTS = config(
     default=True,
     help_text=("enable structured logging of requests"),
     group="Logging",
-    add_to_docs="django_structlog",
+    add_to_docs=is_installed("django_structlog"),
 )
 
 
@@ -908,7 +908,7 @@ else:
                     "backupCount": 10,
                 },
             }
-            if find_spec("celery")
+            if is_installed("celery")
             else {}
         ),
         "loggers": {
@@ -974,7 +974,7 @@ else:
                     "propagate": True,
                 },
             }
-            if find_spec("celery")
+            if is_installed("celery")
             else {}
         ),
     }
@@ -982,7 +982,7 @@ else:
 #
 # AUTH settings - user accounts, passwords, backends...
 #
-if find_spec(f"{PROJECT_DIRNAME}.accounts"):
+if is_installed(f"{PROJECT_DIRNAME}.accounts"):
     AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
@@ -1023,7 +1023,7 @@ SESSION_COOKIE_SECURE = IS_HTTPS
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = config(
     "SESSION_COOKIE_SAMESITE",
-    "Lax",
+    default="Lax",
     help_text=(
         "The value of the SameSite flag on the session cookie. This flag prevents the "
         "cookie from being sent in cross-site requests thus preventing CSRF attacks and "
@@ -1036,7 +1036,7 @@ CSRF_COOKIE_SECURE = IS_HTTPS
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = config(
     "CSRF_COOKIE_SAMESITE",
-    "Strict",
+    default="Strict",
     help_text=(
         "The value of the SameSite flag on the CSRF cookie. This flag prevents the cookie "
         "from being sent in cross-site requests."
@@ -1067,7 +1067,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 #
 ENVIRONMENT = config(
     "ENVIRONMENT",
-    "",
+    default="",
     help_text=(
         "An identifier for the environment, displayed in the admin depending on "
         "the settings module used and included in the error monitoring (see ``SENTRY_DSN``). "
@@ -1080,7 +1080,7 @@ ENVIRONMENT_SHOWN_IN_ADMIN = True
 # Generating the schema, depending on the component
 subpath = config(
     "SUBPATH",
-    None,
+    default=None,
     help_text=(
         "If hosted on a subpath, provide the value here. If you provide ``/gateway``, "
         "the component assumes its running at the base URL: ``https://somedomain/gateway/``. "
@@ -1108,14 +1108,14 @@ else:
 
 RELEASE = config(
     "RELEASE",
-    GIT_SHA,
+    default=GIT_SHA,
     help_text="The version number or commit hash of the application (this is also sent to Sentry).",
     auto_display_default=False,
 )
 
 NUM_PROXIES = config(  # TODO: this also is relevant for DRF settings if/when we have rate-limited endpoints
     "NUM_PROXIES",
-    default=1,
+    default="1",
     cast=lambda val: int(val) if val is not None else None,
     help_text=(
         "the number of reverse proxies in front of the application, as an integer. "
@@ -1175,7 +1175,7 @@ CORS_ALLOW_ALL_ORIGINS = config(
     default=False,
     group="Cross-Origin-Resource-Sharing",
     help_text="allow cross-domain access from any client",
-    add_to_docs="corsheaders",
+    add_to_docs=is_installed("corsheaders"),
 )
 CORS_ALLOWED_ORIGINS = config(
     "CORS_ALLOWED_ORIGINS",
@@ -1186,7 +1186,7 @@ CORS_ALLOWED_ORIGINS = config(
         "explicitly list the allowed origins for cross-domain requests. "
         "Example: http://localhost:3000,https://some-app.gemeente.nl"
     ),
-    add_to_docs="corsheaders",
+    add_to_docs=is_installed("corsheaders"),
 )
 CORS_ALLOWED_ORIGIN_REGEXES = config(
     "CORS_ALLOWED_ORIGIN_REGEXES",
@@ -1194,7 +1194,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = config(
     default=[],
     group="Cross-Origin-Resource-Sharing",
     help_text="same as ``CORS_ALLOWED_ORIGINS``, but supports regular expressions",
-    add_to_docs="corsheaders",
+    add_to_docs=is_installed("corsheaders"),
 )
 
 # Authorization is included in default_cors_headers
@@ -1214,7 +1214,7 @@ CORS_ALLOW_HEADERS = (
             "By default, Authorization, Accept-Crs and Content-Crs are already included. "
             "The value of this variable is added to these already included headers."
         ),
-        add_to_docs="corsheaders",
+        add_to_docs=is_installed("corsheaders"),
     )
 )
 
@@ -1266,7 +1266,7 @@ SITE_DOMAIN = config(
 #
 SENTRY_DSN = config(
     "SENTRY_DSN",
-    None,
+    default=None,
     help_text=(
         "URL of the sentry project to send error reports to. Default empty, "
         "i.e. -> no monitoring set up. Highly recommended to configure this."
@@ -1293,13 +1293,13 @@ if SENTRY_DSN:
 #
 CELERY_BROKER_URL = config(
     "CELERY_RESULT_BACKEND",
-    "redis://localhost:6379/1",
+    default="redis://localhost:6379/1",
     group="Celery",
     help_text="the URL of the backend/broker that will be used by Celery to send the notifications",
 )
 CELERY_RESULT_BACKEND = config(
     "CELERY_RESULT_BACKEND",
-    "redis://localhost:6379/1",
+    default="redis://localhost:6379/1",
     group="Celery",
     help_text="the URL of the backend/broker that will be used by Celery to send the notifications",
 )
@@ -1327,7 +1327,7 @@ MOZILLA_DJANGO_OIDC_DB_CACHE_TIMEOUT = 5 * 60
 #
 ELASTIC_APM_SERVER_URL = config(
     "ELASTIC_APM_SERVER_URL",
-    None,
+    default=None,
     help_text="URL where Elastic APM is hosted",
     group="Elastic APM",
 )
@@ -1335,7 +1335,7 @@ ELASTIC_APM = {
     # FIXME this does change the default service name, because PROJECT_DIRNAME != PROJECT_NAME
     "SERVICE_NAME": config(
         "ELASTIC_APM_SERVICE_NAME",
-        f"{PROJECT_DIRNAME} - {ENVIRONMENT}",
+        default=f"{PROJECT_DIRNAME} - {ENVIRONMENT}",
         help_text=(
             f"Name of the service for this application in Elastic APM. "
             f"Defaults to ``{PROJECT_DIRNAME} - <environment>``"
@@ -1345,14 +1345,14 @@ ELASTIC_APM = {
     ),
     "SECRET_TOKEN": config(
         "ELASTIC_APM_SECRET_TOKEN",
-        "default",
+        default="default",
         help_text="Token used to communicate with Elastic APM",
         group="Elastic APM",
     ),
     "SERVER_URL": ELASTIC_APM_SERVER_URL,
     "TRANSACTION_SAMPLE_RATE": config(
         "ELASTIC_APM_TRANSACTION_SAMPLE_RATE",
-        0.1,
+        default=0.1,
         help_text=(
             "By default, the agent will sample every transaction (e.g. request to your service). "
             "To reduce overhead and storage requirements, set the sample rate to a value between 0.0 and 1.0"
@@ -1446,7 +1446,7 @@ def get_content_security_policy() -> dict[str, dict[str, list[str] | int]]:
         split=True,
         group="Content Security Policy",
         help_text="Extra default source URLs for CSP other than ``self``. Used for ``img-src``, ``style-src`` and ``script-src``.",
-        add_to_docs="csp",
+        add_to_docs=is_installed("csp"),
     )
     extra_form_action = config(
         "CSP_EXTRA_FORM_ACTION",
@@ -1454,7 +1454,7 @@ def get_content_security_policy() -> dict[str, dict[str, list[str] | int]]:
         split=True,
         group="Content Security Policy",
         help_text="Additional `form-action` sources.",
-        add_to_docs="csp",
+        add_to_docs=is_installed("csp"),
     )
     form_action = config(
         "CSP_FORM_ACTION",
@@ -1462,7 +1462,7 @@ def get_content_security_policy() -> dict[str, dict[str, list[str] | int]]:
         split=True,
         group="Content Security Policy",
         help_text="Override the default `form-action` sources.",
-        add_to_docs="csp",
+        add_to_docs=is_installed("csp"),
     )
     extra_img_src = config(
         "CSP_EXTRA_IMG_SRC",
@@ -1470,7 +1470,7 @@ def get_content_security_policy() -> dict[str, dict[str, list[str] | int]]:
         split=True,
         group="Content Security Policy",
         help_text="Extra `img-src` sources.",
-        add_to_docs="csp",
+        add_to_docs=is_installed("csp"),
     )
     object_src = config(
         "CSP_OBJECT_SRC",
@@ -1478,21 +1478,21 @@ def get_content_security_policy() -> dict[str, dict[str, list[str] | int]]:
         split=True,
         group="Content Security Policy",
         help_text="`object-src` sources.",
-        add_to_docs="csp",
+        add_to_docs=is_installed("csp"),
     )
     report_uri = config(
         "CSP_REPORT_URI",
-        None,
+        default=None,
         group="Content Security Policy",
         help_text="URI for CSP report-uri directive.",
-        add_to_docs="csp",
+        add_to_docs=is_installed("csp"),
     )
     report_percentage = config(
         "CSP_REPORT_PERCENTAGE",
-        0.0,
+        default=0.0,
         group="Content Security Policy",
         help_text="Fraction (between 0 and 1) of requests to include report-uri directive.",
-        add_to_docs="csp",
+        add_to_docs=is_installed("csp"),
     )
 
     if not csp_installed:

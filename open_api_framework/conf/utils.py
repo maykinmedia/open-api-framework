@@ -1,119 +1,19 @@
 import logging  # noqa: TID251
-import os
 import sys
-from dataclasses import dataclass
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Any, Optional, TypeVar, assert_never
 from urllib.parse import urlparse
-from warnings import warn
 
-from decouple import Csv, Undefined, config as _config, undefined
+from maykin_common.config import config
 from sentry_sdk.integrations import DidNotEnable, Integration, django, redis
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 
-@dataclass
-class EnvironmentVariable:
-    name: str
-    default: Any
-    help_text: str
-    group: Optional[str] = None
-    auto_display_default: bool = True
-
-    def __post_init__(self):
-        if not self.group:
-            self.group = (
-                "Required" if isinstance(self.default, Undefined) else "Optional"
-            )
-
-    def __eq__(self, other):
-        return isinstance(other, EnvironmentVariable) and self.name == other.name
-
-
-ENVVAR_REGISTRY: list[EnvironmentVariable] = []
-
-_T = TypeVar("_T")
-
-
-def config(
-    option: str,
-    default: _T = undefined,
-    help_text: str = "",
-    group: str | None = None,
-    add_to_docs: str | bool = True,
-    auto_display_default: bool = True,
-    *args,
-    **kwargs,
-) -> _T:
+def is_installed(module_name: str) -> bool:
     """
-    An override of ``decouple.config``, with custom options to construct documentation
-    for environment variables.
-
-    Pull a config parameter from the environment.
-
-    Read the config variable ``option``. If it's optional, use the ``default`` value.
-    Input is automatically cast to the correct type, where the type is derived from the
-    default value if possible.
-
-    Pass ``split=True`` to split the comma-separated input into a list.
-
-    Additionally, the variable is added to a registry that is used to construct documentation
-    via the ``generate_envvar_docs`` management command. The following arguments are added for this:
-
-    :param help_text: The help text to be displayed for this variable in the documentation. Default `""`
-    :param group: The name of the section under which this variable will be grouped. Default ``None``
-    :param add_to_docs: Whether or not this variable will be displayed in the documentation. Default ``True``
-                        If a string is passed, it will only be displayed if it is importable as a module,
-                        and will raise a Warning when it is still passed in from the environment.
-    :param auto_display_default: Whether or not the passed ``default`` value is displayed in the docs, this can be
-        set to ``False`` in case a default needs more explanation that can be added to the ``help_text``
-        (e.g. if it is computed or based on another variable). Default ``True``
+    Return a boolean to indicate if a module is installed or not
     """
-    variable = EnvironmentVariable(
-        name=option,
-        default=default,
-        help_text=help_text,
-        group=group,
-        auto_display_default=auto_display_default,
-    )
-
-    def document():
-        if variable not in ENVVAR_REGISTRY:
-            ENVVAR_REGISTRY.append(variable)
-        else:
-            # If the same variable is defined again (i.e. because a project defines a custom default), override it
-            ENVVAR_REGISTRY[ENVVAR_REGISTRY.index(variable)] = variable
-
-    if "split" in kwargs:
-        kwargs.pop("split")
-        kwargs["cast"] = Csv()
-        if isinstance(default, list):
-            default = ",".join(default)
-
-    if default is not undefined and default is not None:
-        kwargs.setdefault("cast", type(default))
-
-    match add_to_docs:
-        case str(module) if find_spec(module):
-            document()
-        case str(module):
-            # not installed
-            if option in os.environ:
-                warn(
-                    f"{variable.name} found, but required {add_to_docs} is not installed",
-                    RuntimeWarning,
-                )
-            if default is undefined:
-                return default  # don't call _config it will require variable.name!
-        case True:
-            document()
-        case False:
-            pass
-        case _:
-            assert_never(add_to_docs)
-
-    return _config(option, default=default, *args, **kwargs)  # type: ignore
+    return bool(find_spec(module_name))
 
 
 def importable(*items: str) -> list[str]:
@@ -127,6 +27,7 @@ def get_sentry_integrations() -> list[Integration]:
     """
     Determine which Sentry SDK integrations to enable.
     """
+
     extra = []
 
     if find_spec("redis"):  # does not raise DidNotEnable if redis is not installed
