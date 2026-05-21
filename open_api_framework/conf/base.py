@@ -1176,7 +1176,7 @@ if subpath:
     SUBPATH = subpath
 
 if "GIT_SHA" in os.environ:
-    GIT_SHA = config("GIT_SHA", "", documentation=no_doc)
+    GIT_SHA = config("GIT_SHA", default="", documentation=no_doc)
 # in docker (build) context, there is no .git directory
 elif (BASE_DIR / ".git").exists():
     try:
@@ -1385,7 +1385,7 @@ if SENTRY_DSN:
     }
 
     sentry_sdk.init(
-        **SENTRY_CONFIG,
+        **SENTRY_CONFIG,  # pyright: ignore
         integrations=get_sentry_integrations(),
         send_default_pii=True,
     )
