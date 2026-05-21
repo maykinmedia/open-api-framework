@@ -2,7 +2,7 @@ import datetime
 import os
 import warnings
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from django.urls import reverse_lazy
 
@@ -18,10 +18,6 @@ from .utils import (
     is_installed,
     strip_protocol_from_origin,
 )
-
-if TYPE_CHECKING:
-    from psycopg import Connection
-    from psycopg.rows import TupleRow
 
 # optional requirements
 default_cors_headers = []
@@ -330,6 +326,7 @@ if DB_POOL_ENABLED:
     # FIXME Workaround for https://github.com/elastic/apm-agent-python/issues/2094
     # apm-agent-python does not instrument ConnectionPool yet
     import psycopg
+    from psycopg.rows import TupleRow
 
     class WrapperConnectionClass(psycopg.Connection):
         @classmethod
@@ -337,7 +334,7 @@ if DB_POOL_ENABLED:
             cls,
             conninfo: str = "",
             **kwargs: Any,
-        ) -> Connection[TupleRow]:
+        ) -> psycopg.Connection[TupleRow]:
             return psycopg.connect(conninfo, **kwargs)
 
     DATABASES["default"]["OPTIONS"] = {
