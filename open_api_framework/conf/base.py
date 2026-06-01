@@ -557,7 +557,7 @@ LOG_QUERIES = config(
 # XXX: this should be renamed to `LOG_OUTGOING_REQUESTS` in the next major release
 LOG_REQUESTS = config(
     "LOG_REQUESTS",
-    default=False,
+    default=True,
     help_text=(
         "enable logging of the outgoing requests. "
         "This must be enabled along with `LOG_OUTGOING_REQUESTS_DB_SAVE` to save outgoing request logs in the database."
@@ -1411,23 +1411,30 @@ LOG_OUTGOING_REQUESTS_EMIT_BODY = config(
 LOG_OUTGOING_REQUESTS_DB_SAVE = config(
     "LOG_OUTGOING_REQUESTS_DB_SAVE",
     default=False,
-    help_text="Whether or not outgoing request logs should be saved to the database",
+    help_text="Whether or not outgoing request logs should *always* be saved to the database",
     group="Logging",
 )
 LOG_OUTGOING_REQUESTS_DB_SAVE_BODY = config(
     "LOG_OUTGOING_REQUESTS_DB_SAVE_BODY",
-    default=True,
+    default=False,
     help_text="Whether or not outgoing request bodies should be saved to the database",
     group="Logging",
 )
-LOG_OUTGOING_REQUESTS_RESET_DB_SAVE_AFTER = None
+LOG_OUTGOING_REQUESTS_RESET_DB_SAVE_AFTER = config(
+    "LOG_OUTGOING_REQUESTS_RESET_DB_SAVE_AFTER",
+    default=60,
+    help_text="After the config has been changed via the admin, reset back to the default `LOG_OUTGOING_REQUESTS_DB_SAVE` after x minutes",
+    group="Logging",
+)
 LOG_OUTGOING_REQUESTS_MAX_AGE = config(
     "LOG_OUTGOING_REQUESTS_MAX_AGE",
     default=7,
-    help_text="The amount of time after which request logs should be deleted from the database",
+    help_text="The number of days after which request logs should be deleted from the database",
     group="Logging",
-)  # number of days
+)
 
+LOG_OUTGOING_REQUESTS_HANDLER_USE_QUEUE = True
+LOG_OUTGOING_REQUESTS_HANDLER_ON_ERROR = sentry_sdk.capture_exception
 
 #
 # Django CSP settings
