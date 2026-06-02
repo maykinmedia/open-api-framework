@@ -57,6 +57,7 @@ tests = [
     "pytest",
     "pytest-django",
     "pytest-env",
+    "syrupy",
     "tox",
     "ruff",
     "factory-boy",
