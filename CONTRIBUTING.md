@@ -51,6 +51,12 @@ format your commit message like
 that the changes implement the new feature/fix the issue, make sure to also add
 tests to the existing Django testsuite.
 
+To update documentation test snapshots run
+
+```shell
+tox run -f extras -f noextras -- --snapshot-update
+```
+
 ### Making a pull request
 
 If all changes have been committed, you can push the branch to your fork of the
