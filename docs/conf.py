@@ -26,7 +26,7 @@ copyright = "2024, Maykin Media"
 author = "Maykin Media"
 
 # The full version, including alpha/beta/rc tags
-release = "0.13.4"
+release = "0.14.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -37,6 +37,7 @@ release = "0.13.4"
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
+    "sphinx.ext.extlinks",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -59,3 +60,11 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
+
+extlinks = {
+    "open-api-framework": (
+        "https://github.com/maykinmedia/open-api-framework/issues/%s",
+        "#%s",
+    ),
+    "open-zaak": ("https://github.com/open-zaak/open-zaak/issues/%s", "#%s"),
+}

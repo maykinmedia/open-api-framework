@@ -1,6 +1,35 @@
 Changelog
 =========
 
+0.14.0 (2026-06-05)
+-------------------
+
+**💥 Breaking changes**
+
+* [:open-api-framework:`83`] Remove ``generate_envvar_docs`` command and other code related to old style
+  envvar docs generation and switch to documentation generation based on Sphinx directives
+  from ``maykin-common`` (see `documentation <https://maykin-django-common.readthedocs.io/en/latest/env_docs_helpers.html>`_)
+
+**Bugfixes**
+
+* [:open-api-framework:`215`] Add missing ``notifications_api_common`` logger configuration
+
+**Project maintenance**
+
+* Add explicit dependency on django-privates and django-simple-certmanager
+* [:open-api-framework:`83`] Add maykin-common to dependencies and remove python-decouple
+* [:open-zaak:`2369`] Update log-outgoing-requests to >=0.9.1
+* [:open-zaak:`2369`] Align outgoing requests config with OF
+* Add missing STORAGES setting to testapp for django-privates 4.0
+* [:open-api-framework:`208`] Configure type checking with pyright
+* Use trusted publishing to publish to PyPI
+* [:open-api-framework:`218`] Add zizmor action and fix warnings/errors
+
+**Documentation**
+
+* Mention correct django/python minimum versions in quickstart docs
+* Check build stats of main only in README badge
+
 0.13.4 (2026-02-02)
 -------------------
 
