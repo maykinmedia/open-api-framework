@@ -52,20 +52,4 @@ TEMPLATES = [
 
 ROOT_URLCONF = "testapp.urls"
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-    "privates": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-        "OPTIONS": {
-            "location": os.path.join(BASE_DIR, "private-media"),
-            "base_url": "/private-media/",
-        },
-    },
-}
-
 SESSION_ENGINE = "django.contrib.sessions.backends.db"

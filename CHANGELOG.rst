@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.14.1 (2026-08-17)
+-------------------
+
+**Maintenance**
+
+* Make the library compatible with ``django-privates`` >=4.0 and ``django-simple-certmanager`` >= 4.0
+  by relying on Django's ``STORAGES`` setting
+
 0.14.0 (2026-06-05)
 -------------------
 

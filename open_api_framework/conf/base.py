@@ -1335,6 +1335,28 @@ CSRF_TRUSTED_ORIGINS = config(
 PRIVATE_MEDIA_ROOT = BASE_DIR / "private-media"
 PRIVATE_MEDIA_URL = "/private-media/"
 
+#
+# DJANGO-SENDFILE
+#
+SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
+SENDFILE_URL = PRIVATE_MEDIA_URL
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "privates": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": PRIVATE_MEDIA_ROOT,
+            "base_url": PRIVATE_MEDIA_URL,
+        },
+    },
+}
+
 
 #
 # NOTIFICATIONS-API-COMMON
