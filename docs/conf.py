@@ -26,7 +26,7 @@ copyright = "2024, Maykin Media"
 author = "Maykin Media"
 
 # The full version, including alpha/beta/rc tags
-release = "0.14.1"
+release = "0.14.2"
 
 
 # -- General configuration ---------------------------------------------------
@@ -67,4 +67,5 @@ extlinks = {
         "#%s",
     ),
     "open-zaak": ("https://github.com/open-zaak/open-zaak/issues/%s", "#%s"),
+    "open-klant": ("https://github.com/maykinmedia/open-klant/issues/%s", "#%s"),
 }

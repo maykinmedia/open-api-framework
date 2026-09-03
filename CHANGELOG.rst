@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.14.2 (2026-09-03)
+-------------------
+
+**Maintenance**
+
+* [:open-klant:`656`] Pin ``notifications-api-common`` to 0.13.1 or higher,
+  because 0.13.0 introduced changes that allowed non-string kenmerken to be forwarded,
+  but the Notificaties API spec does not support this, so this change had to be reverted
+
 0.14.1 (2026-08-17)
 -------------------
 
