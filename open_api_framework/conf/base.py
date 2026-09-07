@@ -1078,9 +1078,17 @@ SESSION_COOKIE_NAME = f"{PROJECT_DIRNAME}_sessionid"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_COOKIE_AGE = config(
     "SESSION_COOKIE_AGE",
-    default=1209600,
+    default=28800,  # 8 hours
     documentation=DocumentationParams(
         help_text="For how long, in seconds, the session cookie will be valid."
+    ),
+)
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = config(
+    "SESSION_EXPIRE_AT_BROWSER_CLOSE",
+    default=False,
+    documentation=DocumentationParams(
+        help_text="Whether to expire the session when the user closes their browser."
     ),
 )
 
