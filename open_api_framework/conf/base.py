@@ -9,6 +9,12 @@ from django.urls import reverse_lazy
 import sentry_sdk
 from log_outgoing_requests.formatters import HttpFormatter
 from maykin_common.config import DocumentationParams, config, no_doc
+from maykin_common.logging.config import (
+    logging_apps,
+    logging_formatters,
+    logging_middleware,
+    structlog_configure_defaults,
+)
 
 from .utils import (
     get_django_project_dir,
@@ -673,18 +679,13 @@ ENABLE_STRUCTLOG_REQUESTS = config(
 LOGGING_DIR = BASE_DIR / "log"
 
 if _USE_STRUCTLOG:
-    import structlog
+    INSTALLED_APPS += logging_apps
 
-    INSTALLED_APPS += [
-        "django_structlog",
-    ]
-
+    _idx = (
+        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") + 1
+    )
     if ENABLE_STRUCTLOG_REQUESTS:
-        MIDDLEWARE.insert(
-            MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware")
-            + 1,
-            "django_structlog.middlewares.RequestMiddleware",
-        )
+        MIDDLEWARE[_idx:_idx] = logging_middleware
 
     logging_root_handlers = ["console"] if LOG_STDOUT else ["json_file"]
 
@@ -692,31 +693,8 @@ if _USE_STRUCTLOG:
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
-            # structlog - foreign_pre_chain handles logs coming from stdlib logging module,
-            # while the `structlog.configure` call handles everything coming from structlog.
-            # They are mutually exclusive.
-            "json": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processor": structlog.processors.JSONRenderer(),
-                "foreign_pre_chain": [
-                    structlog.contextvars.merge_contextvars,
-                    structlog.processors.TimeStamper(fmt="iso"),
-                    structlog.stdlib.add_logger_name,
-                    structlog.stdlib.add_log_level,
-                    structlog.stdlib.PositionalArgumentsFormatter(),
-                ],
-            },
-            "plain_console": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processor": structlog.dev.ConsoleRenderer(),
-                "foreign_pre_chain": [
-                    structlog.contextvars.merge_contextvars,
-                    structlog.processors.TimeStamper(fmt="iso"),
-                    structlog.stdlib.add_logger_name,
-                    structlog.stdlib.add_log_level,
-                    structlog.stdlib.PositionalArgumentsFormatter(),
-                ],
-            },
+            **logging_formatters,
+            # TODO do we need these?
             "verbose": {
                 "format": "%(asctime)s %(levelname)s %(name)s %(module)s %(process)d %(thread)d  %(message)s"
             },
@@ -858,22 +836,7 @@ if _USE_STRUCTLOG:
         },
     }
 
-    structlog.configure(
-        processors=[
-            structlog.contextvars.merge_contextvars,
-            structlog.stdlib.filter_by_level,
-            structlog.processors.TimeStamper(fmt="iso"),
-            structlog.stdlib.add_logger_name,
-            structlog.stdlib.add_log_level,
-            structlog.stdlib.PositionalArgumentsFormatter(),
-            structlog.processors.StackInfoRenderer(),
-            structlog.processors.format_exc_info,
-            structlog.processors.UnicodeDecoder(),
-            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-        ],
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        cache_logger_on_first_use=True,
-    )
+    structlog_configure_defaults()
 
     # Optional django-structlog settings
     DJANGO_STRUCTLOG_IP_LOGGING_ENABLED = False
