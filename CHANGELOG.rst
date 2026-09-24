@@ -1,14 +1,25 @@
 Changelog
 =========
 
+0.16.0 (2026-09-24)
+-------------------
+
+**New features**
+
+* [:open-api-framework:`233`] Confirm support for python 3.14
+
+**Maintenance**
+
+* [:open-api-framework:`237`] Rely on structlog machinery from ``maykin-common``
+
 0.15.0 (2026-09-09)
 -------------------
 
 **New features**
 
-* [:open-api-framework:`226`] ``SESSION_EXPIRE_AT_BROWSER_CLOSE`` environment variable can now be used to specify whether a user's 
+* [:open-api-framework:`226`] ``SESSION_EXPIRE_AT_BROWSER_CLOSE`` environment variable can now be used to specify whether a user's
   session should end when the browser closes (default ``False``).
-  
+
 **Maintenance**
 
 * [:open-api-framework:`226`] Set the default value of ``SESSION_COOKIE_AGE`` to 8 hours.
